@@ -16,8 +16,16 @@ plt.show()
 
 #Función de probabilidad acumulada (Función de distribución):
 def F(x):
-    if x < (-math.pi/2):
+    if x.any() < (-math.pi/2):
         return 0
-    elif x >= -math.pi/2 and x <= math.pi/2:
+    elif x.any() >= -math.pi/2 and x.any() <= math.pi/2:
         return (13*x/12*math.pi)-(x**3/3*(math.pi**3))
     return 1
+
+r = np.arange(-2, 2)
+y = F(r)
+plt.plot(r, y)
+plt.show()
+
+#Falta encontrar inversa
+
