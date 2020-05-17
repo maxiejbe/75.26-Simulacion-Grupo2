@@ -30,13 +30,22 @@ def gcl01(a, x0, c, m, iteraciones):
     valores = np.array([])
     i = 0
     while i < iteraciones:
-        x = ((a*x0 + c) % m)/m
+        x = ((a*x0 + c) % m)
         x0 = x
         valores = np.append(valores, x)
         i += 1
-    return valores
+    maxElement = np.amax(valores)
+    valores_01 = np.array([])
+    for n in valores:
+        valores_01 = np.append(valores_01, n/maxElement)
+    return valores_01
 np.set_printoptions(suppress = True)
-resultado_b = gcl01(a, x0, c, m, 10)
+resultado_b = gcl01(a, x0, c, m, 100000)
 print (resultado_b)
 
 # c) Realizar un histograma mostrando 100.000 valores generados en el punto b.
+x0 = (101456 + 102214 + 94511 + 95295) // 4
+xb = gcl01(a, x0, c, m, 100000)
+num_bins = 6
+n, bins, patches = plt.hist(xb, num_bins, facecolor='blue', alpha=0.5)
+plt.show()
