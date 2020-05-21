@@ -44,3 +44,12 @@ drawHistogram(numbers, False)
 # c) Comparar, en el mismo gráfico, el histograma realizado en el punto anterior con la función de densidad de
 # probabilidad brindada por el lenguaje elegido (para esta última distribución utilizar un gráfico de línea).
 drawNormalDistribution(mu, sigma, True)
+
+# d) Calcular la media y la varianza de la distribución obtenida y compararlos con los valores teóricos
+print("Valores teóricos:")
+print("Media:", mu)
+print("Varianza:", sigma ** 2)
+
+print("Valores prácticos:")
+print("Media:", np.average(numbers))
+print("Varianza:", np.var(numbers))
