@@ -2,24 +2,40 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stats
+import random as rn
 
 
-def generateNormal(n, mu, sigma):
+def evaluateNormal(x, mu, sigma):
+    return stats.norm.pdf(x, mu, sigma)
+
+
+def generateNormalAcceptanceRejection(n, mu, sigma):
+    ymax = max(evaluateNormal(np.arange(-n, n), mu, sigma))
     numbers = np.array([])
-    acceptedN = 0
-    while acceptedN <= n:
-        x = np.random.normal(mu, sigma)
-        y = np.random.normal(mu, sigma)
-        if y < x:
-            numbers = np.append(numbers, y)
+    acceptedN, rejectedN = 0, 0
+    while acceptedN < n:
+        x = np.random.uniform(0.5 * mu, 1.5 * mu)
+        y = np.random.uniform(0.0, ymax)
+
+        fx = evaluateNormal(x, mu, sigma)
+
+        if y < fx:
+            numbers = np.append(numbers, x)
             acceptedN = acceptedN + 1
+        else:
+            rejectedN = rejectedN + 1
+    print(acceptedN)
+    print(rejectedN)
+
     return numbers
 
 
 def drawHistogram(numbers, show):
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    ax.hist(numbers, weights=np.zeros_like(numbers) + 1.0 / numbers.size)
+    ax.hist(
+        numbers, weights=np.zeros_like(numbers) + 1.0 / numbers.size, bins=20
+    )  # bins=30
     ax.set_xlabel("Numbers range")
     ax.set_ylabel("Relative frequency")
     if show:
@@ -36,7 +52,7 @@ def drawNormalDistribution(mu, sigma, show):
 # Aplicando el algoritmo de Aceptación y rechazo se pide:
 # a) Generar 100.000 número aleatorios con distribución Normal de media 25 y desvío estándar 2 .
 n, mu, sigma = 100000, 25, 2
-numbers = generateNormal(n, mu, sigma)
+numbers = generateNormalAcceptanceRejection(n, mu, sigma)
 
 # b) Realizar un histograma de frecuencias relativas con todos los valores obtenidos.
 drawHistogram(numbers, False)
