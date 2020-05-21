@@ -5,27 +5,21 @@ import scipy.stats as stats
 import random as rn
 
 
-def evaluateNormal(x, mu, sigma):
-    return stats.norm.pdf(x, mu, sigma)
-
-
 def generateNormalAcceptanceRejection(n, mu, sigma):
-    ymax = max(evaluateNormal(np.arange(-n, n), mu, sigma))
+    deltax = 0.5 * mu
+    xmin, xmax = mu - deltax, mu + deltax
+    ymax = max(stats.norm.pdf(np.arange(xmin, xmax), mu, sigma))
     numbers = np.array([])
-    acceptedN, rejectedN = 0, 0
+    acceptedN = 0
     while acceptedN < n:
-        x = np.random.uniform(0.5 * mu, 1.5 * mu)
+        x = np.random.uniform(xmin, xmax)
         y = np.random.uniform(0.0, ymax)
-
-        fx = evaluateNormal(x, mu, sigma)
+        fx = stats.norm.pdf(x, mu, sigma)
 
         if y < fx:
             numbers = np.append(numbers, x)
-            acceptedN = acceptedN + 1
-        else:
-            rejectedN = rejectedN + 1
-    print(acceptedN)
-    print(rejectedN)
+            acceptedN += 1
+            continue
 
     return numbers
 
@@ -33,9 +27,7 @@ def generateNormalAcceptanceRejection(n, mu, sigma):
 def drawHistogram(numbers, show):
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    ax.hist(
-        numbers, weights=np.zeros_like(numbers) + 1.0 / numbers.size, bins=20
-    )  # bins=30
+    ax.hist(numbers, weights=np.zeros_like(numbers) + 1.0 / numbers.size, bins=20)
     ax.set_xlabel("Numbers range")
     ax.set_ylabel("Relative frequency")
     if show:
@@ -55,10 +47,11 @@ n, mu, sigma = 100000, 25, 2
 numbers = generateNormalAcceptanceRejection(n, mu, sigma)
 
 # b) Realizar un histograma de frecuencias relativas con todos los valores obtenidos.
-drawHistogram(numbers, False)
+drawHistogram(numbers, True)
 
 # c) Comparar, en el mismo gráfico, el histograma realizado en el punto anterior con la función de densidad de
 # probabilidad brindada por el lenguaje elegido (para esta última distribución utilizar un gráfico de línea).
+drawHistogram(numbers, False)
 drawNormalDistribution(mu, sigma, True)
 
 # d) Calcular la media y la varianza de la distribución obtenida y compararlos con los valores teóricos
