@@ -41,24 +41,29 @@ def drawNormalDistribution(mu, sigma, show):
         plt.show()
 
 
-# Aplicando el algoritmo de Aceptación y rechazo se pide:
-# a) Generar 100.000 número aleatorios con distribución Normal de media 25 y desvío estándar 2 .
-n, mu, sigma = 100000, 25, 2
-numbers = generateNormalAcceptanceRejection(n, mu, sigma)
+def main():
+    # Aplicando el algoritmo de Aceptación y rechazo se pide:
+    # a) Generar 100.000 número aleatorios con distribución Normal de media 25 y desvío estándar 2 .
+    n, mu, sigma = 1000000, 25, 2
+    numbers = generateNormalAcceptanceRejection(n, mu, sigma)
 
-# b) Realizar un histograma de frecuencias relativas con todos los valores obtenidos.
-drawHistogram(numbers, True)
+    # b) Realizar un histograma de frecuencias relativas con todos los valores obtenidos.
+    drawHistogram(numbers, True)
 
-# c) Comparar, en el mismo gráfico, el histograma realizado en el punto anterior con la función de densidad de
-# probabilidad brindada por el lenguaje elegido (para esta última distribución utilizar un gráfico de línea).
-drawHistogram(numbers, False)
-drawNormalDistribution(mu, sigma, True)
+    # c) Comparar, en el mismo gráfico, el histograma realizado en el punto anterior con la función de densidad de
+    # probabilidad brindada por el lenguaje elegido (para esta última distribución utilizar un gráfico de línea).
+    drawHistogram(numbers, False)
+    drawNormalDistribution(mu, sigma, True)
 
-# d) Calcular la media y la varianza de la distribución obtenida y compararlos con los valores teóricos
-print("Valores teóricos:")
-print("Media:", mu)
-print("Varianza:", sigma ** 2)
+    # d) Calcular la media y la varianza de la distribución obtenida y compararlos con los valores teóricos
+    print("Valores teóricos:")
+    print("Media:", mu)
+    print("Varianza:", sigma ** 2)
 
-print("Valores prácticos:")
-print("Media:", np.average(numbers))
-print("Varianza:", np.var(numbers))
+    print("Valores prácticos:")
+    print("Media:", np.average(numbers))
+    print("Varianza:", np.var(numbers))
+
+
+if __name__ == "__main__":
+    main()
