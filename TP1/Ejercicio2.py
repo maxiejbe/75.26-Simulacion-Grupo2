@@ -9,21 +9,22 @@ c = 1664525
 m = 2**32
 
 def generateRN(n):
-    x = (gcl(a, x0, c, m, 2*n) % 6)
-    # print(len([number for number in x if number == 0]))
-    # print(len([number for number in x if number == 1]))
-    # print(len([number for number in x if number == 2]))
-    # print(len([number for number in x if number == 3]))
-    # print(len([number for number in x if number == 4]))
-    # print(len([number for number in x if number == 5]))
-    result = []
+    gclValues = (gcl(a, x0, c, m, 2*n) % 6)
+    result = np.zeros(11)
     i = 0
     while i < n:
         j = 2*i
-        result.append(x[j]+x[j+1])
+        index = np.take(gclValues, j) + np.take(gclValues, j+1) 
+        np.put(result, [index], [np.take(result, [index])+1])
         i = i + 1
     return result
 
 x = generateRN(10000)
-plt.plot(x)
+print(x)
+values = ['0', '1', '2', '3', '4', '5', '6', '7', '8','9', '10']
+plt.bar(values, x)
+plt.xticks(values)
+plt.yticks(x) 
+plt.xlabel('Valores posibles')
+plt.ylabel('Repeticiones')
 plt.show()
