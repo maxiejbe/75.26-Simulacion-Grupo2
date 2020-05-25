@@ -38,7 +38,7 @@ def main():
     print("Cantidad de tests a realizar: {}".format(testsN))
     print("Nivel de significación (Alpha): {}".format(alpha))
 
-    n, mu, sigma = 10000, 25, 2
+    n, mu, sigma = 100000, 25, 2
     print("Generador: Normal(mu={},sigma={})".format(mu, sigma))
     print("Cantidad de Nros:{}".format(n))
 
