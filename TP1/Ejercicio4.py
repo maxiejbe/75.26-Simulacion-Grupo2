@@ -51,6 +51,9 @@ def main():
     # Aplicando el algoritmo de Aceptación y rechazo se pide:
     # a) Generar 100.000 número aleatorios con distribución Normal de media 25 y desvío estándar 2 .
     n, mu, sigma = 100000, 25, 2
+    print("Cantidad de números a generar={}".format(n))
+    print("Distribución Normal(mu={},sigma={})".format(mu, sigma))
+
     numbers = generateNormalAcceptanceRejection(n, mu, sigma, True)
 
     # b) Realizar un histograma de frecuencias relativas con todos los valores obtenidos.
