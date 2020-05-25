@@ -3,12 +3,8 @@ import matplotlib.pyplot as plt
 import math
 from Ejercicio1 import gcl
 
-a = 1013904223
-x0 = (101456 + 102214 + 94511 + 95295) // 4
-c = 1664525
-m = 2**32
 
-def generateRN(n):
+def generateRN(a, x0, c, m, n):
     gclValues = (gcl(a, x0, c, m, 2*n) % 6)
     result = np.zeros(11)
     i = 0
@@ -19,12 +15,18 @@ def generateRN(n):
         i = i + 1
     return result
 
-x = generateRN(10000)
-print(x)
-values = ['0', '1', '2', '3', '4', '5', '6', '7', '8','9', '10']
-plt.bar(values, x)
-plt.xticks(values)
-plt.yticks(x) 
-plt.xlabel('Valores posibles')
-plt.ylabel('Repeticiones')
-plt.show()
+
+def main():
+    a, x0, c, m, n = 1013904223, ((101456 + 102214 + 94511 + 95295) // 4), 1664525, 2**32, 10000
+    values = ['0', '1', '2', '3', '4', '5', '6', '7', '8','9', '10']
+    np.set_printoptions(suppress = True)
+    x = generateRN(a, x0, c, m , n)
+    plt.bar(values, x)
+    plt.xticks(values)
+    plt.xlabel('Valores posibles')
+    plt.ylabel('Repeticiones')
+    plt.show()
+    return
+
+if __name__ == "__main__":
+    main()
