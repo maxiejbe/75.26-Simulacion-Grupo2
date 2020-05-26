@@ -35,8 +35,7 @@ def RandomWalk(N, p):
     plt.plot(*zip(*position))
     plt.xlabel('x')
     plt.ylabel('y')
-
-
-    return None
+    plt.show()
+    return
 
 RandomWalk(N_steps, prob)
