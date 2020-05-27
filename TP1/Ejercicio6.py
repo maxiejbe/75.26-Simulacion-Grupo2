@@ -20,27 +20,34 @@ def groupResults(numbers):
             np.put(grouped, 4,np.take(grouped, [4])+1)
     return grouped
 
-
-def main():
-    mu, sigma = 5, 2.41523
+def ChiSquaredTest(mu, sigma, n, observedValues) :
+    observadosAgrupados = groupResults(observedValues)
     teoricos = np.random.normal(mu, sigma, n)
     teoricosAgrupados = groupResults(teoricos)
-
-    a, x0, c, m, n = 1013904223, ((101456 + 102214 + 94511 + 95295) // 4), 1664525, 2**32, 10000
-    observados = generateRN(a, x0, c, m , n)
-    observadosAgrupados = groupResults(observados)
 
     i,D2 = 0, 0
     while (i < len(observadosAgrupados)):
         D2 += (((observadosAgrupados[i] - teoricosAgrupados[i])**2)/teoricosAgrupados[i])
         i += 1
-    limiteSuperior = chi2.ppf(0.998, df=4)
+    limiteSuperior = chi2.ppf(0.999, df=4)
+    return D2 <= limiteSuperior
 
-    if D2 <= limiteSuperior:
-        print("El test ACEPTA la hipotesis nula.")
-    else:
-        print("El test RECHAZA la hipótesis nula")
-    return
+def multipleChiSquaredTest(n, testsN):
+    a, x0, c, m = 1013904223, ((101456 + 102214 + 94511 + 95295) // 4), 1664525, 2**32
+    observedValues = generateRN(a, x0, c, m , n)
+    mu, sigma = 5, 2.41523
+    resutls = [ChiSquaredTest(mu, sigma,n, observedValues) for _ in range(testsN)]
+    return resutls
+
+
+def main():
+    n, testsN = 10000, 100
+    results =  multipleChiSquaredTest(n, testsN)
+    print("El test ACEPTA la hipotesis nula {} veces.".format(len([result for result in results if result])))
+    print("El test RECHAZA la hipótesis nula {} veces".format(len([result for result in results if not result])))
+    
 
 if __name__ == "__main__":
     main()
+
+
