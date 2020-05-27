@@ -9,7 +9,7 @@ N_steps = 1000
 #(arriba, abajo, derecha o izquierda)
 prob = 0.25
 
-def RandomWalk(N, p):
+def RandomWalk(N):
 
     position = []
     x = 0
@@ -38,4 +38,4 @@ def RandomWalk(N, p):
     plt.show()
     return
 
-RandomWalk(N_steps, prob)
+RandomWalk(N_steps)
