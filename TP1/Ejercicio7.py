@@ -25,11 +25,11 @@ def test_standard_normal_kolmogorov_smirnov(tests_n, numbers_per_test, alpha, ou
 
 
 def main():
-    tests_n, alpha = 100, 0.01
+    tests_n, alpha = 10, 0.01
     print("Cantidad de tests a realizar: {}".format(tests_n))
     print("Nivel de significación (Alpha): {}".format(alpha))
 
-    numbers_per_test = 10000
+    numbers_per_test = 100000
     print("Generador: Normal(mu={},sigma={})".format(0, 1))
     print("Cantidad de Nros:{}".format(numbers_per_test))
 
