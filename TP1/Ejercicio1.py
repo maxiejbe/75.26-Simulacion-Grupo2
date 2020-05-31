@@ -6,9 +6,23 @@
 import numpy as np
 import sympy as sym
 import matplotlib.pyplot as plt
+import sys
 
 
-def gcl(a, x0, c, m, iterations):
+def gcl_parameters():
+    m = 2 ** 32
+    a = 1013904223
+    x0d = (101456 + 102214 + 94511 + 95295) // 4
+    c = 1664525
+    return a, x0d, c, m
+
+
+def gcl(iterations, x0p=None):
+    a, x0d, c, m = gcl_parameters()
+    x0 = x0d
+    if isinstance(x0p, int):
+        x0 = x0p
+
     values = np.array([])
     i = 0
     while i < iterations:
@@ -19,40 +33,23 @@ def gcl(a, x0, c, m, iterations):
     return values
 
 
-def gcl01(a, x0, c, m, iterations):
-    values = gcl(a, x0, c, m, iterations)
+def gcl01(iterations, x0p=None):
+    values = gcl(iterations, x0p)
+    a, x0d, c, m = gcl_parameters()
     values_01 = values / m
     return values_01
-
-
-def gcl_parameters():
-    a = 1013904223
-    x0 = (101456 + 102214 + 94511 + 95295) // 4
-    c = 1664525
-    m = 2 ** 32
-    return a, x0, c, m
-
-
-def gcl_with_parameters(iterations):
-    a, x0, c, m = gcl_parameters()
-    return gcl(a, x0, c, m, iterations)
-
-
-def gcl01_with_parameters(iterations):
-    a, x0, c, m = gcl_parameters()
-    return gcl01(a, x0, c, m, iterations)
 
 
 def main():
     np.set_printoptions(suppress=True)
     print("a) Informar los primeros 10 números generados.")
-    resultado_a = gcl_with_parameters(10)
+    resultado_a = gcl(10)
     print(resultado_a)
 
     # b) Modificar el GCL para que devuelva números al azar entre 0 y 1
     print("b) Modificar el GCL para que devuelva números al azar entre 0 y 1")
     np.set_printoptions(suppress=True)
-    results_b = gcl01_with_parameters(100000)
+    results_b = gcl01(100000)
     print(results_b)
 
     # c) Realizar un histograma mostrando 100.000 valores generados en el punto b.
