@@ -6,9 +6,9 @@ from enum import Enum
 contagionProbability = 0.6
 heal_probability = 0.8
 heal_steps = 20
-top_movement_limit = 100
+top_movement_limit = 50
 bottom_movement_limit = 0
-transmission_distance = 2
+transmission_distance = 5
 steps_until_not_move = 10
 
 class Particle:
@@ -18,11 +18,8 @@ class Particle:
         self.is_infected = is_infected
         self.infected_steps = infected_steps
         self.can_move = can_move
-    def is_near(self, other_particle):
-        return (other_particle.x <= self.x + transmission_distance and 
-                other_particle.x >= self.x - transmission_distance and
-                other_particle.y <= self.y + transmission_distance and 
-                other_particle.y >= self.y - transmission_distance)
+    def is_near(self, other_particle): 
+        return abs(other_particle.x - self.x) <= transmission_distance and abs(other_particle.y - self.y) <= transmission_distance
     def move(self):
         p = np.random.uniform(0, 1)
         if   (        p < 0.25 and self.x + 1 < top_movement_limit):    self.x += 1
@@ -37,9 +34,9 @@ class Particle:
             self.infected_steps = 0;
 
     def is_got_infected(self, n_near_infected):
-        is_infected = True
+        is_infected = False
         for i in range(1, n_near_infected):
-            if (contagionProbability >= np.random.uniform(0,1)):
+            if (contagionProbability <= np.random.uniform(0,1)):
                 is_infected = True
         return is_infected
 
@@ -56,9 +53,9 @@ class Particle:
 
 def get_near_infected(particle, other_particles):
     nearParticles = []
-    for currentParticle in other_particles:
-        if (currentParticle.is_infected and particle.is_near(currentParticle)):
-            nearParticles.append(currentParticle)
+    for current_particle in other_particles:
+        if (current_particle.is_infected and particle.is_near(current_particle)):
+            nearParticles.append(current_particle)
     return nearParticles
 
 def simulate(times, state, can_heal, restric_movement, infected_cant_move, show_current_status, show_interval ):
@@ -66,8 +63,8 @@ def simulate(times, state, can_heal, restric_movement, infected_cant_move, show_
     infected, not_infected, ntimes = [], [], []
     for i in range(1, times):
         for j in range(0, len(state)):
-            nearInfected = get_near_infected(state[j], state)
-            state[j].move_particle(len(nearInfected), can_heal, restric_movement, infected_cant_move)
+            near_infected = get_near_infected(state[j], state)
+            state[j].move_particle(len(near_infected), can_heal, restric_movement, infected_cant_move)
         
         nInfected = (len([particle for particle in state if particle.is_infected]))
         infected.append(nInfected)
@@ -100,8 +97,8 @@ def plotCurrentStatus(currentTime, currentState):
     plt.cla()
     plt.xlim(bottom_movement_limit, top_movement_limit)
     plt.ylim(bottom_movement_limit, top_movement_limit)
-    plt.scatter(list(map(getXSick, currentState)), list(map(getYSick, currentState)), color='green', label='times:  %.1f' %(currentTime))
-    plt.scatter(list(map(getXNotSick, currentState)), list(map(getYNotSick, currentState)), color='black')
+    plt.scatter(list(map(getXSick, currentState)), list(map(getYSick, currentState)), color='green', label='times:  %.1f' %(currentTime), marker='^')
+    plt.scatter(list(map(getXNotSick, currentState)), list(map(getYNotSick, currentState)), color='black', marker='D')
     plt.legend(fancybox=True, framealpha=1, shadow=True, borderpad=1, loc='upper center')
     plt.pause(0.00001)
 
