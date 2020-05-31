@@ -24,10 +24,9 @@ def gcl01(a, x0, c, m, iteraciones):
         x0 = x
         valores = np.append(valores, x)
         i += 1
-    maxElement = np.amax(valores)
     valores_01 = np.array([])
     for n in valores:
-        valores_01 = np.append(valores_01, n/maxElement)
+        valores_01 = np.append(valores_01, n/m)
     return valores_01
 def main():
     a = 1013904223
