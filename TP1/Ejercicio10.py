@@ -83,44 +83,43 @@ def createModel(n_particles, times, initial_sick_percent, initial_immobilized_pe
     simulate(times, initial_state, can_heal, restric_movement, infected_cant_move, show_current_status, show_interval)
 
 def main():
-    if( len(sys.argv) != 4):
-        print('Invalid parameters')
-        return
     if ( not (sys.argv[1] in ['A1', 'A2','A3','B1','B2','B3'])):
         print('first argument must be A1 or A2 or A3 or B1 or B2 or B3')
         return
     if ( not (sys.argv[2] in ['True', 'true','False','false'])):
         print('Second argument must be True or False')
         return
-    try: int(sys.argv[3])
-    except ValueError: 
-        print('Third argument must be a number')
-        return
+    steps = 1
+    if (sys.argv[2].lower() == 'true'):
+        try: steps = int(sys.argv[3])
+        except ValueError: 
+            print('Third argument must be a number')
+            return
     n_particles, times, initial_sick_percent = 100, 4000, 5
     if(sys.argv[1] == 'A1'):
         initial_immobilized_percent, can_heal, restric_movement = 0, False, False
         createModel(n_particles, times, initial_sick_percent, initial_immobilized_percent, can_heal, restric_movement, 
-        sys.argv[2].lower() == 'true', int(sys.argv[3]))
+        sys.argv[2].lower() == 'true', steps)
     elif(sys.argv[1] == 'A2'):
         initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 0, False, True, True
         createModel(n_particles, times, initial_sick_percent, initial_immobilized_percent, can_heal, restric_movement, 
-        sys.argv[2].lower() == 'true', int(sys.argv[3]), infected_cant_move)
+        sys.argv[2].lower() == 'true', steps, infected_cant_move)
     elif(sys.argv[1] == 'A3'):
         initial_immobilized_percent, can_heal, restric_movement = 50, False, True
         createModel(n_particles, times, initial_sick_percent, initial_immobilized_percent, can_heal, restric_movement, 
-        sys.argv[2].lower() == 'true', int(sys.argv[3]))
+        sys.argv[2].lower() == 'true', steps)
     elif(sys.argv[1] == 'B1'):
         initial_immobilized_percent, can_heal, restric_movement = 0, True, False
         createModel(n_particles, times, initial_sick_percent, initial_immobilized_percent, can_heal, restric_movement, 
-        sys.argv[2].lower() == 'true', int(sys.argv[3]))
+        sys.argv[2].lower() == 'true', steps)
     elif(sys.argv[1] == 'B2'):
         initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 0,True, True, True
         createModel(n_particles, times, initial_sick_percent, initial_immobilized_percent, can_heal, restric_movement, 
-        sys.argv[2].lower() == 'true', int(sys.argv[3]), infected_cant_move)
+        sys.argv[2].lower() == 'true', steps, infected_cant_move)
     elif(sys.argv[1] == 'B3'):
         initial_immobilized_percent, can_heal, restric_movement = 50, True, True
         createModel(n_particles, times, initial_sick_percent, initial_immobilized_percent, can_heal, restric_movement, 
-        sys.argv[2].lower() == 'true', int(sys.argv[3]))
+        sys.argv[2].lower() == 'true', steps)
     else:
         print('Invalid parameters');
        
@@ -147,8 +146,8 @@ def plotCurrentStatus(currentTime, currentState):
 
 def plotFinalStatus(infected, not_infected, ntimes):
     plt.close()
-    plt.xlim(0, 4000)
-    plt.ylim(0, 100)
+    plt.xlim(-5, 4005)
+    plt.ylim(-5, 105)
     plt.plot(ntimes, infected, color='green', label='Infectados')
     plt.plot(ntimes, not_infected, color='blue', label='Sanos')
     plt.legend(fancybox=True, framealpha=1, shadow=True, borderpad=1)
