@@ -165,8 +165,6 @@ def main():
     )
     board.start_movement()
 
-    print("test")
-
 
 if __name__ == "__main__":
     main()
