@@ -20,6 +20,7 @@ class Board:
         red_particles_count,
         moving_time,
         particle_step,
+        use_half_wall,
     ):
         self.size_x = size_x
         self.size_y = size_y
@@ -34,6 +35,8 @@ class Board:
 
         self.red_particles = []
         self.red_particles_count = red_particles_count
+
+        self.use_half_wall = use_half_wall
 
         self.initialize_particles()
 
@@ -70,6 +73,25 @@ class Board:
             self.draw()
         plt.show()
 
+    def validate_boundaries(self, x, y):
+        wall_crosses_y = wall_crosses_x_left = wall_crosses_x_right = False
+        if self.use_half_wall:
+            wall_crosses_y = y >= self.size_y / 2
+            wall_crosses_x_left = x >= (self.size_x / 2 - self.particle_step)
+            wall_crosses_x_right = x <= (self.size_x / 2 + self.particle_step)
+
+        if wall_crosses_y & wall_crosses_x_left & wall_crosses_x_right:
+            return False
+        if x < 0:
+            return False
+        if x > self.size_x:
+            return False
+        if y < 0:
+            return False
+        if y > self.size_y:
+            return False
+        return True
+
     def draw(self):
         plt.cla()
         plt.xlim(0, self.size_x)
@@ -79,12 +101,24 @@ class Board:
             list(p.get_y() for p in self.green_particles),
             color="green",
             label="times:  %.1f" % (self.time),
+            marker=",",
+            lw=0,
+            s=3,
         )
         plt.scatter(
             list(p.get_x() for p in self.red_particles),
             list(p.get_y() for p in self.red_particles),
-            color="black",
+            color="red",
+            marker=",",
+            lw=0,
+            s=3,
         )
+
+        if self.use_half_wall:
+            wall_x = [self.size_x / 2, self.size_x / 2]
+            wall_y = [self.size_y, self.size_y / 2]
+            plt.plot(wall_x, wall_y, marker="o", color="black")
+
         plt.legend(
             fancybox=True, framealpha=1, shadow=True, borderpad=1, loc="upper center"
         )
@@ -96,38 +130,27 @@ class Particle:
         self.x = x
         self.y = y
         self.directions = self.generate_directions()
+        self.board = board
         self.particle_step = board.get_particle_step()
-        self.boundary_x, self.boundary_y = board.get_size()
-
-    def validate_boundaries(self, x, y):
-        if x < 0:
-            return False
-        if x > self.boundary_x:
-            return False
-        if y < 0:
-            return False
-        if y > self.boundary_y:
-            return False
-        return True
 
     def move_to_north(self):
         new_y = self.y + self.particle_step
-        if self.validate_boundaries(self.x, new_y):
+        if self.board.validate_boundaries(self.x, new_y):
             self.y = new_y
 
     def move_to_south(self):
         new_y = self.y - self.particle_step
-        if self.validate_boundaries(self.x, new_y):
+        if self.board.validate_boundaries(self.x, new_y):
             self.y = new_y
 
     def move_to_east(self):
         new_x = self.x + self.particle_step
-        if self.validate_boundaries(new_x, self.y):
+        if self.board.validate_boundaries(new_x, self.y):
             self.x = new_x
 
     def move_to_west(self):
         new_x = self.x - self.particle_step
-        if self.validate_boundaries(new_x, self.y):
+        if self.board.validate_boundaries(new_x, self.y):
             self.x = new_x
 
     def generate_directions(self):
@@ -150,10 +173,10 @@ class Particle:
 
 
 def main():
-    green_particles_count, red_particles_count = 100, 100
+    green_particles_count, red_particles_count = 10000, 10000
     board_size_x, board_size_y = 10, 20
     particle_step = 0.1
-    moving_time = 100
+    moving_time = 3000
 
     board = Board(
         board_size_x,
@@ -162,6 +185,7 @@ def main():
         red_particles_count,
         moving_time,
         particle_step,
+        False,
     )
     board.start_movement()
 
