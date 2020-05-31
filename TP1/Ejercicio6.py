@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-from Ejercicio2 import generateRN
+from Ejercicio2 import generate_rn
 from scipy.stats import chi2
 
 
-def groupResults(numbers):
+def group_results(numbers):
     grouped = np.zeros(5)
     for num in numbers:
         if(     num <= 2):
@@ -20,27 +20,34 @@ def groupResults(numbers):
             np.put(grouped, 4,np.take(grouped, [4])+1)
     return grouped
 
-
-def main():
-    mu, sigma = 5, 2.41523
-    teoricos = np.random.normal(mu, sigma, n)
-    teoricosAgrupados = groupResults(teoricos)
-
-    a, x0, c, m, n = 1013904223, ((101456 + 102214 + 94511 + 95295) // 4), 1664525, 2**32, 10000
-    observados = generateRN(a, x0, c, m , n)
-    observadosAgrupados = groupResults(observados)
+def chi_squared_test(mu, sigma, n, observed_values) :
+    observed_grouped = group_results(observed_values)
+    theoretical = np.random.normal(mu, sigma, n)
+    theoretical_grouped = group_results(theoretical)
 
     i,D2 = 0, 0
-    while (i < len(observadosAgrupados)):
-        D2 += (((observadosAgrupados[i] - teoricosAgrupados[i])**2)/teoricosAgrupados[i])
+    while (i < len(observed_grouped)):
+        D2 += (((observed_grouped[i] - theoretical_grouped[i])**2)/theoretical_grouped[i])
         i += 1
-    limiteSuperior = chi2.ppf(0.998, df=4)
+    top_limit = chi2.ppf(0.99, df=4)
+    return D2 <= top_limit
 
-    if D2 <= limiteSuperior:
-        print("El test ACEPTA la hipotesis nula.")
-    else:
-        print("El test RECHAZA la hipótesis nula")
-    return
+def multiplechi_squared_test(n, tests_n):
+    a, x0, c, m = 1013904223, ((101456 + 102214 + 94511 + 95295) // 4), 1664525, 2**32
+    observed_values = generate_rn(a, x0, c, m , n)
+    mu, sigma = 5, 2.41523
+    resutls = [chi_squared_test(mu, sigma,n, observed_values) for _ in range(tests_n)]
+    return resutls
+
+
+def main():
+    n, tests_n = 10000, 100
+    results =  multiplechi_squared_test(n, tests_n)
+    print("El test ACEPTA la hipotesis nula {} veces.".format(len([result for result in results if result])))
+    print("El test RECHAZA la hipótesis nula {} veces".format(len([result for result in results if not result])))
+    
 
 if __name__ == "__main__":
     main()
+
+
