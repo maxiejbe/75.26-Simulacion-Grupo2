@@ -16,7 +16,6 @@ def gapTest(numberOfGaps, alpha, beta):
     while i < numberOfGaps:
         randomNumber = gcl01(1013904223, x0, 1664525, 2^32, 1)
         number = randomNumber[0]
-        print (number)
         if((number < alpha) and (number >= beta)):
             gap += 1
         else:
@@ -25,8 +24,6 @@ def gapTest(numberOfGaps, alpha, beta):
             i += 1
             gap = 0
         x0 = number
-    print("GAPS")
-    print (gaps)
     #probabilidades esperadas
     p = beta - alpha
     gapMax = max(gaps)
@@ -35,12 +32,17 @@ def gapTest(numberOfGaps, alpha, beta):
         expected[j] = p*((1-p)**(j-1))*(numberOfGaps)
 
     [h,pValor] = stats.chisquare(gaps, expected)
-    return pValor
+    return pValor, gaps
 
-pValor = gapTest(100000, 0.2, 0.5)
+[pValor, gaps] = gapTest(100000, 0.2, 0.5)
+gapMax = max(gaps)
+plt.axis([0, gapMax, 0, gapMax])
+plt.bar(gaps, facecolor = 'purple')
+plt.show()
 if pValor < 0.01:
-    print("Rechazo :(")
+    print("Rechazo")
 else:
-    print("Acepto :)")
+    print("Acepto")
+
 
 
