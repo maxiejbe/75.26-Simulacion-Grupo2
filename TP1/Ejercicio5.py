@@ -2,7 +2,7 @@ import numpy as np
 import sympy as sym
 import scipy.stats as stats
 import matplotlib.pyplot as plt
-from Ejercicio1 import gcl01
+from Ejercicio1 import gcl01_with_parameters
 
 # Aplicar un gap test al generador congruencial lineal implementado en el ejercicio 1 utilizando el intervalo [0,2 - 0,5].
 # Analizar el resultado obtenido, e indicar si la distribución de probabilidades pasa o no el test.
@@ -10,11 +10,10 @@ from Ejercicio1 import gcl01
 
 def gapTest(numberOfGaps, alpha, beta):
     i = 0
-    x0 = (101456 + 102214 + 94511 + 95295) // 4
     gap = 0
     gaps = np.zeros(numberOfGaps)
     while i < numberOfGaps:
-        randomNumber = gcl01(1013904223, x0, 1664525, 2^32, 1)
+        randomNumber = gcl01_with_parameters(1)
         number = randomNumber[0]
         if((number > alpha) and (number <= beta)):
             gap += 1
@@ -39,10 +38,11 @@ def gapTest(numberOfGaps, alpha, beta):
 [pValor, gaps] = gapTest(100000, 0.2, 0.5)
 plt.hist(gaps, bins = 50, color = 'purple')
 plt.show()
-if pValor < 0.01:
-    print("Rechazo")
+nivelDeSignifiacion = 0.01
+if pValor < nivelDeSignifiacion:
+    print("Para un nivel de significación del ", nivelDeSignifiacion*100, "%, obtenemos que no podemos rechazar la hipótesis nula (h=0)")
 else:
-    print("Acepto")
+    print("Para un nivel de significación del ", nivelDeSignifiacion*100, "%, obtenemos que podemos rechazar la hipótesis nula (h=0)")
 
 
 
