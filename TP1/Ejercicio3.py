@@ -1,11 +1,12 @@
 import numpy as np 
 import matplotlib.pyplot as plt
 import math
+#%matplotlib inline
 
 #Graficar la función de densidad de probabilidad
 
 def f(x):
-    return (13/12*math.pi) - (x**2)/(math.pi)**3
+    return (13/(12*math.pi)) - (x**2)/((math.pi)**3)
 
 x = np.arange(-math.pi/2, math.pi/2)
 p = f(x)
@@ -16,16 +17,22 @@ plt.show()
 
 #Función de probabilidad acumulada (Función de distribución):
 def F(x):
-    if x.any() < (-math.pi/2):
-        return 0
-    elif x.any() >= -math.pi/2 and x.any() <= math.pi/2:
-        return (13*x/12*math.pi)-(x**3/3*(math.pi**3))
-    return 1
+    return ((13*x)/(12*np.pi))-((x**3)/(3*(np.pi**3))) + 0.5
 
-r = np.arange(-2, 2)
-y = F(r)
-plt.plot(r, y)
+x = np.linspace(-np.pi/2, np.pi/2, 2000)
+y = F(x)
+
+plt.plot(x, y, '-r')
 plt.show()
 
-#Falta encontrar inversa
+#plt.hist(y)
+
+#invierto los ejes
+#plt.plot(y, x)
+
+#interpolo con puntos equiespaciados 0,1
+x_interp = np.linspace(-np.pi/2, np.pi/2, 30)
+y_interp = np.interp(x_interp, y, x)
+
+plt.plot(y_interp, x_interp)
 
