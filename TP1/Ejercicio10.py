@@ -83,9 +83,18 @@ def createModel(n_particles, times, initial_sick_percent, initial_immobilized_pe
     simulate(times, initial_state, can_heal, restric_movement, infected_cant_move, show_current_status, show_interval)
 
 def main():
-    if ( len(sys.argv) != 4):
-        print(sys.argv)
+    if( len(sys.argv) != 4):
         print('Invalid parameters')
+        return
+    if ( not (sys.argv[1] in ['A1', 'A2','A3','B1','B2','B3'])):
+        print('first argument must be A1 or A2 or A3 or B1 or B2 or B3')
+        return
+    if ( not (sys.argv[2] in ['True', 'true','False','false'])):
+        print('Second argument must be True or False')
+        return
+    try: int(sys.argv[3])
+    except ValueError: 
+        print('Third argument must be a number')
         return
     n_particles, times, initial_sick_percent = 100, 4000, 5
     if(sys.argv[1] == 'A1'):
