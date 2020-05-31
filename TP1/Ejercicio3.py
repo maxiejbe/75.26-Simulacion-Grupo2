@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import interpolate
-from TP1.Ejercicio1 import *
+from Ejercicio1 import gcl01
 
 
 #%matplotlib inline
@@ -30,6 +30,9 @@ y = [F(xi) for xi in x]
 plt.plot(x, y, '-r')
 plt.show()
 
+plt.hist(x)
+plt.show()
+
 #invierto los ejes
 x, y = y, x
 plt.plot(x, y)
@@ -42,3 +45,4 @@ x_new = gcl01(100000)
 y_new = F_inversa(x_new)
 
 plt.hist(y_new)
+plt.show()
