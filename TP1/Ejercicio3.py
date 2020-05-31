@@ -3,6 +3,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import interpolate
+from TP1.Ejercicio1 import *
 
 
 #%matplotlib inline
