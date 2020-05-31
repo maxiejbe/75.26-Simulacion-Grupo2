@@ -1,51 +1,42 @@
 # coding=utf-8
-from Ejercicio4 import generateNormalAcceptanceRejection
+from Ejercicio4 import generate_standard_normal_acceptance_rejection
 import numpy as np
 import scipy.stats as stats
 
 
-def generateNormal(n, mu, sigma):
-    def generateNormedNormal():
-        numbers = generateNormalAcceptanceRejection(n, mu, sigma, False)
-        # Shifteo y escalo los números para hacer el test contra N(0,1)
-        return (numbers - mu) / sigma
+def test_standard_normal_kolmogorov_smirnov(tests_n, numbers_per_test, alpha, output):
+    rejected_tests_n = 0
 
-    return generateNormedNormal
+    for i in range(tests_n):
+        numbers = generate_standard_normal_acceptance_rejection(numbers_per_test, False)
 
-
-def testNormalKolmogorovSmirnov(normalGenerator, testsN, alpha, output):
-    rejectedTestsN = 0
-
-    for i in range(testsN):
-        normedNumbers = normalGenerator()
-
-        d, pval = stats.kstest(normedNumbers, "norm")
+        d, pval = stats.kstest(numbers, "norm")
         if output:
             print("P(KS dataset {}): {}".format(i, pval))
 
         if pval < alpha:
-            rejectedTestsN += 1
+            rejected_tests_n += 1
 
-    rejectionProbability = float(rejectedTestsN) / testsN
+    rejection_p = float(rejected_tests_n) / tests_n
     if output:
-        print("Tests KS realizados: {}".format(testsN))
-        print("Tests KS rechazados: {}".format(rejectedTestsN))
-    return rejectionProbability
+        print("Tests KS realizados: {}".format(tests_n))
+        print("Tests KS rechazados: {}".format(rejected_tests_n))
+    return rejection_p
 
 
 def main():
-    testsN, alpha = 10, 0.01
-    print("Cantidad de tests a realizar: {}".format(testsN))
+    tests_n, alpha = 10, 0.01
+    print("Cantidad de tests a realizar: {}".format(tests_n))
     print("Nivel de significación (Alpha): {}".format(alpha))
 
-    n, mu, sigma = 100000, 25, 2
-    print("Generador: Normal(mu={},sigma={})".format(mu, sigma))
-    print("Cantidad de Nros:{}".format(n))
+    numbers_per_test = 100000
+    print("Generador: Normal(mu={},sigma={})".format(0, 1))
+    print("Cantidad de Nros:{}".format(numbers_per_test))
 
-    rejectionProbability = testNormalKolmogorovSmirnov(
-        generateNormal(n, mu, sigma), testsN, alpha, True
+    rejection_p = test_standard_normal_kolmogorov_smirnov(
+        tests_n, numbers_per_test, alpha, True
     )
-    print("Probabilidad de rechazo según test KS: {}".format(rejectionProbability))
+    print("Probabilidad de rechazo según test KS: {}".format(rejection_p))
 
 
 if __name__ == "__main__":

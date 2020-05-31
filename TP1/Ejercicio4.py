@@ -3,35 +3,48 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 import random as rn
+import math
 
 
-def generateNormalAcceptanceRejection(n, mu, sigma, output):
-    deltax = 0.5 * mu
-    xmin, xmax = mu - deltax, mu + deltax
-    ymax = max(stats.norm.pdf(np.arange(xmin, xmax), mu, sigma))
+def generate_normal_acceptance_rejection(n, mu, sigma, output):
+    numbers = generate_standard_normal_acceptance_rejection(n, output)
+    return (numbers * sigma) + mu
+
+
+def generate_standard_normal_acceptance_rejection(n, output):
+    # Theory: Derive Fx(t)/Fy(t) => t=1
+    c = 2 * stats.norm.pdf(1) / stats.expon.pdf(1)
+
     numbers = np.array([])
-    acceptedN, rejectedN = 0, 0
-    while acceptedN < n:
-        x = np.random.uniform(xmin, xmax)
-        y = np.random.uniform(0.0, ymax)
-        fx = stats.norm.pdf(x, mu, sigma)
+    accepted_n, rejected_n = 0, 0
+    while accepted_n < n:
+        x = np.random.exponential()
+        p = stats.norm.pdf(x) / (c * stats.expon.pdf(x))
+        y = rn.random()
 
-        if y < fx:
-            numbers = np.append(numbers, x)
-            acceptedN += 1
+        if y <= p:
+            r1 = rn.random()
+            if r1 < 0.5:
+                numbers = np.append(numbers, x)
+            else:
+                numbers = np.append(numbers, -x)
+
+            accepted_n += 1
             continue
         else:
-            rejectedN += 1
+            rejected_n += 1
 
+    total_n = accepted_n + rejected_n
+    rejection_percentage = rejected_n * 100 / total_n
     if output:
-        print("Y Max={}".format(ymax))
-        print("Cantidad aceptados={}".format(acceptedN))
-        print("Cantidad rechazados={}".format(rejectedN))
+        print("Cantidad aceptados={}".format(accepted_n))
+        print("Cantidad rechazados={}".format(rejected_n))
+        print("Porcentaje de rechazos={}%".format(rejection_percentage))
 
     return numbers
 
 
-def drawHistogram(numbers, show):
+def draw_histogram(numbers, show):
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     ax.hist(numbers, weights=np.zeros_like(numbers) + 1.0 / numbers.size, bins=20)
@@ -41,7 +54,7 @@ def drawHistogram(numbers, show):
         plt.show()
 
 
-def drawNormalDistribution(mu, sigma):
+def draw_normal_pdf(mu, sigma):
     x = np.linspace(mu - 3 * sigma, mu + 3 * sigma, 100)
     plt.plot(x, stats.norm.pdf(x, mu, sigma), "-r")
     plt.show()
@@ -54,15 +67,15 @@ def main():
     print("Cantidad de números a generar={}".format(n))
     print("Distribución Normal(mu={},sigma={})".format(mu, sigma))
 
-    numbers = generateNormalAcceptanceRejection(n, mu, sigma, True)
+    numbers = generate_normal_acceptance_rejection(n, mu, sigma, True)
 
     # b) Realizar un histograma de frecuencias relativas con todos los valores obtenidos.
-    drawHistogram(numbers, True)
+    draw_histogram(numbers, True)
 
     # c) Comparar, en el mismo gráfico, el histograma realizado en el punto anterior con la función de densidad de
     # probabilidad brindada por el lenguaje elegido (para esta última distribución utilizar un gráfico de línea).
-    drawHistogram(numbers, False)
-    drawNormalDistribution(mu, sigma)
+    draw_histogram(numbers, False)
+    draw_normal_pdf(mu, sigma)
 
     # d) Calcular la media y la varianza de la distribución obtenida y compararlos con los valores teóricos
     print("Valores teóricos: Media={},Varianza={}".format(mu, sigma ** 2))
