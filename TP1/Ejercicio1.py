@@ -6,53 +6,62 @@
 import numpy as np
 import sympy as sym
 import matplotlib.pyplot as plt
-def gcl(a, x0, c, m, iteraciones):
-    valores = np.array([])
-    i = 0
-    while i < iteraciones:
-        x = (a*x0 + c) % m
-        x0 = x
-        valores = np.append(valores, x)
-        i += 1
-    return valores
 
-def gcl01(a, x0, c, m, iteraciones):
-    valores = np.array([])
+
+def gcl(a, x0, c, m, iterations):
+    values = np.array([])
     i = 0
-    while i < iteraciones:
-        x = ((a*x0 + c) % m)
+    while i < iterations:
+        x = (a * x0 + c) % m
         x0 = x
-        valores = np.append(valores, x)
+        values = np.append(values, x)
         i += 1
-    valores_01 = np.array([])
-    for n in valores:
-        valores_01 = np.append(valores_01, n/m)
-    return valores_01
-def main():
+    return values
+
+
+def gcl01(a, x0, c, m, iterations):
+    values = gcl(a, x0, c, m, iterations)
+    values_01 = values / m
+    return values_01
+
+
+def gcl_parameters():
     a = 1013904223
     x0 = (101456 + 102214 + 94511 + 95295) // 4
     c = 1664525
-    m = 2**32
-    np.set_printoptions(suppress = True)
+    m = 2 ** 32
+    return a, x0, c, m
+
+
+def gcl_with_parameters(iterations):
+    a, x0, c, m = gcl_parameters()
+    return gcl(a, x0, c, m, iterations)
+
+
+def gcl01_with_parameters(iterations):
+    a, x0, c, m = gcl_parameters()
+    return gcl01(a, x0, c, m, iterations)
+
+
+def main():
+    np.set_printoptions(suppress=True)
     print("a) Informar los primeros 10 números generados.")
-    resultado_a = gcl(a, x0, c, m, 10)
-    print (resultado_a)
+    resultado_a = gcl_with_parameters(10)
+    print(resultado_a)
 
     # b) Modificar el GCL para que devuelva números al azar entre 0 y 1
     print("b) Modificar el GCL para que devuelva números al azar entre 0 y 1")
-    np.set_printoptions(suppress = True)
-    resultado_b = gcl01(a, x0, c, m, 100000)
-    print (resultado_b)
+    np.set_printoptions(suppress=True)
+    results_b = gcl01_with_parameters(100000)
+    print(results_b)
 
     # c) Realizar un histograma mostrando 100.000 valores generados en el punto b.
     print("c) Realizar un histograma mostrando 100.000 valores generados en el punto b")
-    x0 = (101456 + 102214 + 94511 + 95295) // 4
-    xb = gcl01(a, x0, c, m, 100000)
     num_bins = 6
-    plt.hist(xb, num_bins, facecolor = 'purple', alpha = 0.5)
+    plt.hist(results_b, num_bins, facecolor="purple", alpha=0.5)
     plt.show()
-    plt.savefig("histograma_ejercicio1.png")
     return
+
 
 if __name__ == "__main__":
     main()
