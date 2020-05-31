@@ -1,6 +1,7 @@
 import numpy as np 
 import matplotlib.pyplot as plt
 import math
+import Ejercicio1
 #%matplotlib inline
 
 #Graficar la función de densidad de probabilidad
@@ -19,20 +20,29 @@ plt.show()
 def F(x):
     return ((13*x)/(12*np.pi))-((x**3)/(3*(np.pi**3))) + 0.5
 
+#Grafico funcion distribucion original
 x = np.linspace(-np.pi/2, np.pi/2, 2000)
 y = F(x)
-
 plt.plot(x, y, '-r')
 plt.show()
 
 #plt.hist(y)
 
 #invierto los ejes
-#plt.plot(y, x)
+plt.plot(y, x)
+def F_invertida(x):
+    y = F(x)
+    
+    return
 
 #interpolo con puntos equiespaciados 0,1
 x_interp = np.linspace(-np.pi/2, np.pi/2, 30)
 y_interp = np.interp(x_interp, y, x)
 
 plt.plot(y_interp, x_interp)
+
+valores_generador = gcl01(100000)
+
+def F_invertida(x):
+    return 
 
