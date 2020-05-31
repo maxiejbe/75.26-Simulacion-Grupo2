@@ -3,123 +3,141 @@ import random
 import matplotlib.pyplot as plt
 
 contagionProbability = 1
-healProbability = 0.8
-healSteps = 20
-topMovementLimit = 100
-bottomMovementLimit = 0
-transmissionDistance = 2
+heal_probability = 0.8
+heal_steps = 20
+top_movement_limit = 100
+bottom_movement_limit = 0
+transmission_distance = 2
+steps_until_not_move = 10
 
 class Particle:
-    def __init__(self, x, y, isInfected, canMove, infectedSteps=0):
+    def __init__(self, x, y, is_infected, can_move, infected_steps=0):
         self.x = x
         self.y = y
-        self.isInfected = isInfected
-        self.infectedSteps = infectedSteps
-        self.canMove = canMove
-    def isNear(self, otherParticle):
-        return (otherParticle.x <= self.x + transmissionDistance and otherParticle.x >= self.x - transmissionDistance and
-                otherParticle.y <= self.y + transmissionDistance and otherParticle.y >= self.y - transmissionDistance)
+        self.is_infected = is_infected
+        self.infected_steps = infected_steps
+        self.can_move = can_move
+    def isNear(self, other_particle):
+        return (other_particle.x <= self.x + transmission_distance and other_particle.x >= self.x - transmission_distance and
+                other_particle.y <= self.y + transmission_distance and other_particle.y >= self.y - transmission_distance)
     def move(self):
-            p = random.random()
-            if (p < 0.25 and self.x + 1 < topMovementLimit):
-                self.x += 1
-            elif (0.25 <= p < 0.5 and self.y + 1 < topMovementLimit):
-                self.y += 1
-            elif (0.5 <= p < 0.75 and self.x -1 > bottomMovementLimit):
-                self.x -= 1
-            elif (0.75 <= p and self.y -1 > bottomMovementLimit):
-                self.y -= 1
+        p = random.random()
+        if (p < 0.25 and self.x + 1 < top_movement_limit):
+            self.x += 1
+        elif (0.25 <= p < 0.5 and self.y + 1 < top_movement_limit):
+            self.y += 1
+        elif (0.5 <= p < 0.75 and self.x -1 > bottom_movement_limit):
+            self.x -= 1
+        elif (0.75 <= p and self.y -1 > bottom_movement_limit):
+            self.y -= 1
     def tryHeal(self):
-        if(self.isInfected and self.infectedSteps > healSteps and random.random() <= healProbability):
-            self.infectedSteps = 0
-            self.isInfected = False
-            self.canMove = True
-        elif(self.isInfected and self.infectedSteps <= healSteps):
-            self.infectedSteps += 1
+        if(self.is_infected and self.infected_steps > heal_steps and random.random() <= heal_probability):
+            self.is_infected = False
+            self.can_move = True
+        elif(self.is_infected and self.infected_steps <= heal_steps):
+            self.infected_steps += 1
     def isGotInfected(self, nNearSicks):
-        isInfected = self.isInfected
+        is_infected = self.is_infected
         for i in range(1, nNearSicks):
             if (random.random() <= 1):
-                isInfected = True
-        return isInfected
+                is_infected = True
+        return is_infected
 
-    def normalMove(self, nNearSicks, heal, restricMovement):
-        if(restricMovement and self.canMove or not restricMovement):
+    def normalMove(self, nNearSicks, heal, restric_movement, infectedCantMove):
+        if(restric_movement and self.can_move or not restric_movement):
             self.move()
-        if(not self.isInfected and nNearSicks > 0):
-            self.isInfected = self.isGotInfected(nNearSicks)
+        if(not self.is_infected and nNearSicks > 0):
+            self.is_infected = self.isGotInfected(nNearSicks)
         if(heal):
             self.tryHeal()
+        print(infectedCantMove, self.is_infected, self.infected_steps, steps_until_not_move, self.infected_steps > steps_until_not_move)
+        if(infectedCantMove and self.is_infected and self.infected_steps > steps_until_not_move):
+            print('alguno deberia dejar de moverse')
+            self.can_move = False
 
 
-def getNearSickParticles(particle, otherParticles):
+def getNearSickParticles(particle, other_particles):
     nearParticles = []
-    for currentParticle in otherParticles:
-        if (currentParticle.isInfected and particle.isNear(currentParticle)):
+    for currentParticle in other_particles:
+        if (currentParticle.is_infected and particle.isNear(currentParticle)):
             nearParticles.append(currentParticle)
     return nearParticles
 
 
-def simulate(times, state, canHeal, restricMovement, showCurrentStatus):
+def simulate(times, state, can_heal, restric_movement, showCurrentStatus, infectedCantMove = False):
     sickParticles, notSickParticles, ntimes = [], [], []
     for i in range(1, times):
         for j in range(0, len(state)):
             nearSickParticles = getNearSickParticles(state[j], state)
-            state[j].normalMove(len(nearSickParticles), canHeal, restricMovement)
+            state[j].normalMove(len(nearSickParticles), can_heal, restric_movement, infectedCantMove)
             
-        sickParticles.append((len([particle for particle in state if particle.isInfected])))
-        notSickParticles.append((len([particle for particle in state if not particle.isInfected])))
+        sickParticles.append((len([particle for particle in state if particle.is_infected])))
+        notSickParticles.append((len([particle for particle in state if not particle.is_infected])))
         ntimes.append(i)
         if(showCurrentStatus):
             plotCurrentStatus(i, state)
     plotFinalStatus(sickParticles, notSickParticles, ntimes)
 
 def modelA1(showCurrentStatus):
-    nParticles, times = 100, 4000
-    initialSickPercent, initialImmobilizedPercent = 5, 0
-    canHeal, restricMovement = False, False
-    initialStateA1 = createInitialState(nParticles, initialSickPercent, initialImmobilizedPercent)
-    simulate(times, initialStateA1, canHeal, restricMovement, showCurrentStatus)
+    n_particles, times = 100, 4000
+    initial_sick_percent, initial_immobilized_percent = 5, 0
+    can_heal, restric_movement = False, False
+    initial_State_A1 = createInitialState(n_particles, initial_sick_percent, initial_immobilized_percent)
+    simulate(times, initial_State_A1, can_heal, restric_movement, showCurrentStatus)
 
 def modelB1(showCurrentStatus):
-    nParticles, times = 100, 4000
-    initialSickPercent, initialImmobilizedPercent = 5, 0 
-    canHeal, restricMovement = True, False
-    initialStateB1 = createInitialState(nParticles, initialSickPercent, initialImmobilizedPercent)
-    simulate(times, initialStateB1, canHeal, restricMovement, showCurrentStatus)
+    n_particles, times = 100, 4000
+    initial_sick_percent, initial_immobilized_percent = 5, 0 
+    can_heal, restric_movement = True, False
+    initial_state_B1 = createInitialState(n_particles, initial_sick_percent, initial_immobilized_percent)
+    simulate(times, initial_state_B1, can_heal, restric_movement, showCurrentStatus)
 
 def modelA3(showCurrentStatus):
-    nParticles, times = 100, 4000
-    initialSickPercent, initialImmobilizedPercent = 5, 50
-    canHeal, restricMovement = False, True
-    initialStateA3 = createInitialState(nParticles, initialSickPercent, initialImmobilizedPercent)
-    simulate(times, initialStateA3, canHeal, restricMovement, showCurrentStatus)
+    n_particles, times = 100, 4000
+    initial_sick_percent, initial_immobilized_percent = 5, 50
+    can_heal, restric_movement = False, True
+    initial_state_A3 = createInitialState(n_particles, initial_sick_percent, initial_immobilized_percent)
+    simulate(times, initial_state_A3, can_heal, restric_movement, showCurrentStatus)
 
 def modelB3(showCurrentStatus):
-    nParticles, times = 100, 4000
-    initialSickPercent, initialImmobilizedPercent = 5, 50 
-    canHeal, restricMovement = True, True
-    initialStateB3 = createInitialState(nParticles, initialSickPercent, initialImmobilizedPercent)
-    simulate(times, initialStateB3, canHeal, restricMovement, showCurrentStatus)
+    n_particles, times = 100, 4000
+    initial_sick_percent, initial_immobilized_percent = 5, 50 
+    can_heal, restric_movement = True, True
+    initial_state_B3 = createInitialState(n_particles, initial_sick_percent, initial_immobilized_percent)
+    simulate(times, initial_state_B3, can_heal, restric_movement, showCurrentStatus)
 
+def modelA2(showCurrentStatus):
+    n_particles, times = 100, 300
+    initial_sick_percent, initial_immobilized_percent = 5, 0
+    can_heal, restric_movement, infectedCantMove = False, True, True
+    initial_State_A1 = createInitialState(n_particles, initial_sick_percent, initial_immobilized_percent)
+    simulate(times, initial_State_A1, can_heal, restric_movement, showCurrentStatus, infectedCantMove)
 
+def modelB2(showCurrentStatus):
+    n_particles, times = 100, 300
+    initial_sick_percent, initial_immobilized_percent = 5, 0
+    can_heal, restric_movement, infectedCantMove = True, True, True
+    initial_State_A1 = createInitialState(n_particles, initial_sick_percent, initial_immobilized_percent)
+    simulate(times, initial_State_A1, can_heal, restric_movement, showCurrentStatus, infectedCantMove)
 
 def main():
 #    modelA1(False)
 #    modelB1(False)
-     modelA3(False)
+     modelA2(True)
+#    modelB2(False)
+#    modelA3(False)
 #    modelB3(False)
 
 
        
-def createInitialState(nParticles, initialSick, intialCantMove):
+def createInitialState(n_particles, initialSick, intialCantMove):
     state = []
-    nSick = (nParticles*initialSick)/100
+    nSick = (n_particles*initialSick)/100
     pDontMove = (intialCantMove)/100
-    for i in range(0, nParticles):
+    for i in range(0, n_particles):
         state.append(
-            Particle(np.random.randint(bottomMovementLimit,topMovementLimit),
-                     np.random.randint(bottomMovementLimit, topMovementLimit),
+            Particle(np.random.randint(bottom_movement_limit,top_movement_limit),
+                     np.random.randint(bottom_movement_limit, top_movement_limit),
                      i < nSick,
                      random.random() > pDontMove))
     return state
@@ -139,16 +157,16 @@ def plotFinalStatus(sickParticles, notSickParticles, ntimes):
     plt.show()
 
 def getXSick(p):
-    if(p.isInfected):
+    if(p.is_infected):
         return p.x
 def getYSick(p):
-    if(p.isInfected):
+    if(p.is_infected):
         return p.y
 def getXNotSick(p):
-    if(not p.isInfected):
+    if(not p.is_infected):
         return p.x
 def getYNotSick(p):
-    if(not p.isInfected):
+    if(not p.is_infected):
         return p.y
 
 
