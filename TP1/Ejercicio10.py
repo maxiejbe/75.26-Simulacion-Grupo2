@@ -41,8 +41,8 @@ class Board:
         nSick = (self.n_particles*initial_sick_percent)/100
         pDontMove = (initial_immobilized_percent)/100
         for i in range(0, self.n_particles):
-            x = np.random.randint(0, 100)
-            y = np.random.randint(0, 100)
+            x = np.random.randint(self.bottom_movement_limit, self.top_movement_limit)
+            y = np.random.randint(self.bottom_movement_limit, self.top_movement_limit)
             self.state.append(
                 Particle(x,y, i < nSick, np.random.uniform(0,1) > pDontMove, self))
 
@@ -134,7 +134,7 @@ class Particle:
 
     def is_got_infected(self, n_near_infected):
         is_infected = False
-        for i in range(1, n_near_infected):
+        for i in range(0, n_near_infected):
             if (self.board.contagion_probability >= np.random.uniform(0,1)):
                 is_infected = True
         return is_infected
@@ -261,9 +261,9 @@ def main():
 
 #    #Todos las particulas se mueven
 #        # Modelo A
-    model_A1_board.simulate(True, 20)
+#    model_A1_board.simulate(True, 20)
 #        # Modelo B
-#    model_B1_board.simulate(True, 10)
+    model_B1_board.simulate(True, 20)
 #    #10 Instantes luego de que la particula se infecte, deja de moverse
 #        #Modelo A
 #    model_A2_board.simulate(True, 10)
