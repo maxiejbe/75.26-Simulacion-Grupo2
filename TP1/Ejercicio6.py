@@ -33,8 +33,7 @@ def chi_squared_test(mu, sigma, n, observed_values) :
     return D2 <= top_limit
 
 def multiplechi_squared_test(n, tests_n):
-    a, x0, c, m = 1013904223, ((101456 + 102214 + 94511 + 95295) // 4), 1664525, 2**32
-    observed_values = generate_rn(a, x0, c, m , n)
+    observed_values = generate_rn(n)
     mu, sigma = 5, 2.41523
     resutls = [chi_squared_test(mu, sigma,n, observed_values) for _ in range(tests_n)]
     return resutls

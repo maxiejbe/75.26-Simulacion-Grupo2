@@ -4,8 +4,8 @@ import math
 from Ejercicio1 import gcl
 
 
-def generate_rn(a, x0, c, m, n):
-    gcl_values = (gcl(a, x0, c, m, 2*n) % 6)
+def generate_rn(n):
+    gcl_values = (gcl(2*n) % 6)
     result = np.array([])
     i = 0
     while i < n:
@@ -17,8 +17,8 @@ def generate_rn(a, x0, c, m, n):
 
 
 def main():
-    a, x0, c, m, n = 1013904223, ((101456 + 102214 + 94511 + 95295) // 4), 1664525, 2**32, 10000
-    data = generate_rn(a, x0, c, m , n)
+    n = 10000
+    data = generate_rn(n)
     plt.hist(data, bins=10)
     plt.show()
     return
