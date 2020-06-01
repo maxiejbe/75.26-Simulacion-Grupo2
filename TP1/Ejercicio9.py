@@ -110,20 +110,23 @@ class Board:
             return False
         return True
 
-    def draw_density(self):
+    def draw_density(self, left_particles_count, right_particles_count, color):
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
         ax.set_xlabel("Time")
         ax.set_ylabel("Particles count (right, left)")
         x = np.linspace(0, self.moving_time, self.moving_time)
-
-        ax.plot(x, self.right_red_particles_count, "-r")
-        ax.plot(x, self.left_red_particles_count, "-r")
+        ax.plot(x, self.right_red_particles_count, color)
+        ax.plot(x, self.left_red_particles_count, color)
         plt.show()
 
-        ax.plot(x, self.right_green_particles_count, "-g")
-        ax.plot(x, self.left_green_particles_count, "-g")
-        plt.show()
+    def draw_particles_density(self):
+        self.draw_density(
+            self.left_red_particles_count, self.right_red_particles_count, "-r"
+        )
+        self.draw_density(
+            self.left_green_particles_count, self.right_green_particles_count, "-g"
+        )
 
     def draw(self):
         plt.cla()
@@ -230,7 +233,7 @@ def main():
         False,
     )
     board.start_movement()
-    board.draw_density()
+    board.draw_particles_density()
 
     # b) En t=0 es removida sólo la mitad inferior de la pared permitiendo que los dos gases se mezclen
     board = Board(
@@ -243,7 +246,7 @@ def main():
         True,
     )
     board.start_movement()
-    board.draw_density()
+    board.draw_particles_density()
 
 
 if __name__ == "__main__":
