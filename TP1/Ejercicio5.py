@@ -13,8 +13,6 @@ def gapTest(numberOfGaps, alpha, beta):
     gap = 0
     gaps = np.zeros(numberOfGaps)
     randomNumbers = gcl01(142980)
-    print("RN")
-    print(randomNumbers)
     j = 0
     while i < numberOfGaps:
         number = randomNumbers[j]
