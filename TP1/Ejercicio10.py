@@ -158,7 +158,7 @@ def main():
     heal_probability = 0.8
     heal_steps = 20
     top_movement_limit = 100
-    transmission_distance = 5
+    transmission_distance = 2
     steps_until_not_move = 10
 
     initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 0, False, False, False
@@ -259,21 +259,21 @@ def main():
     )
 
 
-#    #Todos las particulas se mueven
-#        # Modelo A
-#    model_A1_board.simulate(True, 20)
-#        # Modelo B
-    model_B1_board.simulate(True, 20)
-#    #10 Instantes luego de que la particula se infecte, deja de moverse
-#        #Modelo A
-#    model_A2_board.simulate(True, 10)
-#        #Modelo B
-#    model_B2_board.simulate(True, 10)
-#    #50 % de las particulas no se mueven
-#        #Modelo A
-#    model_A3_board.simulate(True, 10)
-#        #Modelo B
-#    model_B3_board.simulate(True, 10)
+    #Todos las particulas se mueven
+        # Modelo A
+    model_A1_board.simulate()
+        # Modelo B
+    model_B1_board.simulate()
+    #10 Instantes luego de que la particula se infecte, deja de moverse
+        #Modelo A
+    model_A2_board.simulate()
+        #Modelo B
+    model_B2_board.simulate()
+    #50 % de las particulas no se mueven
+        #Modelo A
+    model_A3_board.simulate()
+        #Modelo B
+    model_B3_board.simulate()
 
 
 
