@@ -3,161 +3,284 @@ import random
 import matplotlib.pyplot as plt
 from enum import Enum
 
-contagionProbability = 0.6
-heal_probability = 0.8
-heal_steps = 20
-top_movement_limit = 50
-bottom_movement_limit = 0
-transmission_distance = 5
-steps_until_not_move = 10
+class Board:
+    def __init__(
+        self,
+        contagionProbability,
+        heal_probability,
+        heal_steps,
+        top_movement_limit,
+        transmission_distance,
+        steps_until_not_move,
+        n_particles, 
+        times, 
+        initial_sick_percent,
+        initial_immobilized_percent,
+        can_heal,
+        restric_movement,
+        infected_cant_move
+    ):
+        self.bottom_movement_limit = 0
+        self.contagionProbability = contagionProbability
+        self.heal_probability = heal_probability
+        self.heal_steps = heal_steps
+        self.top_movement_limit = top_movement_limit
+        self.transmission_distance = transmission_distance
+        self.steps_until_not_move = steps_until_not_move
+        self.n_particles = n_particles 
+        self.times = times 
+        self.can_heal = can_heal
+        self.restric_movement = restric_movement
+        self.infected_cant_move = infected_cant_move
+        self.n_infected_on_step = []
+        self.n_not_infected_on_step = []
+        self.state = []
+        self.createInitialState(initial_sick_percent, initial_immobilized_percent)
+
+    def createInitialState(self, initial_sick_percent, initial_immobilized_percent):
+        nSick = (self.n_particles*initial_sick_percent)/100
+        pDontMove = (initial_immobilized_percent)/100
+        for i in range(0, self.n_particles):
+            x = np.random.randint(0, 100)
+            y = np.random.randint(0, 100)
+            self.state.append(
+                Particle(x,y, i < nSick, np.random.uniform(0,1) > pDontMove, self))
+
+    def get_near_infected(self, particle):
+        nearParticles = 0
+        for current_particle in self.state:
+            if (current_particle.is_infected and particle.is_near(current_particle)):
+                nearParticles += 1
+        if nearParticles > 0:
+            print(nearParticles)
+        return nearParticles
+    
+    def get_state_information(self):
+        nInfected = (sum(p.is_infected for p in self.state))
+        self.n_infected_on_step.append(nInfected)
+        self.n_not_infected_on_step.append((len(self.state)-nInfected))
+
+    def simulate(self, show_current_status = False, show_interval = 1):
+        for i in range(1, self.times):
+            for j in range(0, self.n_particles):
+                near_infected = self.get_near_infected(self.state[j])
+                self.state[j].move_particle(near_infected)
+            self.get_state_information()
+            if(show_current_status and ((i % show_interval) == 0)):
+                self.plotCurrentStatus(i)
+        self.plotFinalStatus()
+
+    def plotCurrentStatus(self, currentTime):
+        plt.cla()
+        plt.xlim(self.bottom_movement_limit - 5, self.n_particles + 5)
+        plt.ylim(self.bottom_movement_limit - 5, self.n_particles + 5)
+        plt.scatter(list(map(self.getXSick, self.state)), list(map(self.getYSick, self.state)), color='green', label='times:  %.1f' %(currentTime), marker='^')
+        plt.scatter(list(map(self.getXNotSick, self.state)), list(map(self.getYNotSick, self.state)), color='Blue')
+        plt.legend(fancybox=True, framealpha=1, shadow=True, borderpad=1, loc='upper center')
+        plt.pause(0.001)
+
+    def getXSick(self, p):
+        if(p.is_infected):
+            return p.x
+    def getYSick(self, p):
+        if(p.is_infected):
+            return p.y
+    def getXNotSick(self, p):
+        if(not p.is_infected):
+            return p.x
+    def getYNotSick(self, p):
+        if(not p.is_infected):
+            return p.y
+
+    def plotFinalStatus(self):
+        plt.close()
+        plt.xlim(self.bottom_movement_limit - 5, self.times + 5)
+        plt.ylim(self.bottom_movement_limit - 5, self.n_particles + 5)
+        x_axis = list(range(self.bottom_movement_limit, self.times-1))
+        plt.plot( x_axis,
+                  self.n_infected_on_step,
+                  color='green',
+                  label='Infectados')
+        plt.plot( x_axis,
+                  self.n_not_infected_on_step,
+                  color='blue',
+                  label='Sanos')
+        plt.legend(fancybox=True, framealpha=1, shadow=True, borderpad=1)
+        plt.show()
 
 class Particle:
-    def __init__(self, x, y, is_infected, can_move, infected_steps=0):
+    def __init__(self, x, y, is_infected, can_move, board, infected_steps=0):
         self.x = x
         self.y = y
         self.is_infected = is_infected
-        self.infected_steps = infected_steps
         self.can_move = can_move
+        self.board = board
+        self.infected_steps = infected_steps
+
     def is_near(self, other_particle): 
-        return abs(other_particle.x - self.x) <= transmission_distance and abs(other_particle.y - self.y) <= transmission_distance
+        return ((abs(other_particle.x - self.x) <= self.board.transmission_distance) and 
+                (abs(other_particle.y - self.y) <= self.board.transmission_distance))
+
     def move(self):
         p = np.random.uniform(0, 1)
-        if   (        p < 0.25 and self.x + 1 < top_movement_limit):    self.x += 1
-        elif (0.25 <= p < 0.5  and self.y + 1 < top_movement_limit):    self.y += 1
-        elif (0.5  <= p < 0.75 and self.x - 1 > bottom_movement_limit): self.x -= 1
-        elif (0.75 <= p        and self.y - 1 > bottom_movement_limit): self.y -= 1
+        if   (        p < 0.25 and self.x + 1 < self.board.top_movement_limit):    self.x += 1
+        elif (0.25 <= p < 0.5  and self.y + 1 < self.board.top_movement_limit):    self.y += 1
+        elif (0.5  <= p < 0.75 and self.x - 1 > self.board.bottom_movement_limit): self.x -= 1
+        elif (0.75 <= p        and self.y - 1 > self.board.bottom_movement_limit): self.y -= 1
 
     def try_heal(self):
-        if(self.is_infected and self.infected_steps > heal_steps and np.random.uniform(0,1) <= heal_probability):
+        if(self.is_infected and self.infected_steps > self.board.heal_steps and np.random.uniform(0,1) <= self.board.heal_probability):
             self.is_infected = False
             self.can_move = True
-            self.infected_steps = 0;
+            self.infected_steps = 0
 
     def is_got_infected(self, n_near_infected):
         is_infected = False
         for i in range(1, n_near_infected):
-            if (contagionProbability <= np.random.uniform(0,1)):
+            if (self.board.contagionProbability <= np.random.uniform(0,1)):
                 is_infected = True
         return is_infected
 
-    def move_particle(self, n_near_infected, heal, restric_movement, infected_cant_move):
-        if(not restric_movement or restric_movement and self.can_move):
+    def move_particle(self, n_near_infected):
+        if(not self.board.restric_movement or self.board.restric_movement and self.can_move):
             self.move()
         if(not self.is_infected and n_near_infected > 0):
             self.is_infected = self.is_got_infected(n_near_infected)
-        if(heal):
+        if(self.board.can_heal):
             self.try_heal()
-        if(infected_cant_move and self.is_infected and self.infected_steps >= steps_until_not_move):
+        if(self.board.infected_cant_move and self.is_infected and self.infected_steps >= self.board.steps_until_not_move):
             self.can_move = False
         if (self.is_infected): self.infected_steps += 1
 
-def get_near_infected(particle, other_particles):
-    nearParticles = []
-    for current_particle in other_particles:
-        if (current_particle.is_infected and particle.is_near(current_particle)):
-            nearParticles.append(current_particle)
-    return nearParticles
-
-def simulate(times, state, can_heal, restric_movement, infected_cant_move, show_current_status, show_interval ):
-    print('times: ', times, 'can_heal: ',can_heal , 'restric_movement: ', restric_movement, 'infected_cant_move: ', infected_cant_move)
-    infected, not_infected, ntimes = [], [], []
-    for i in range(1, times):
-        for j in range(0, len(state)):
-            near_infected = get_near_infected(state[j], state)
-            state[j].move_particle(len(near_infected), can_heal, restric_movement, infected_cant_move)
-        
-        nInfected = (len([particle for particle in state if particle.is_infected]))
-        infected.append(nInfected)
-        not_infected.append((len(state)-nInfected))
-        ntimes.append(i)
-        if(show_current_status and ((i % show_interval) == 0)):
-            plotCurrentStatus(i, state)
-
-    plotFinalStatus(infected, not_infected, ntimes)
-
-def createModel(n_particles, times, initial_sick_percent, initial_immobilized_percent, can_heal, 
-                restric_movement, show_current_status, show_interval, infected_cant_move):
-    initial_state = createInitialState(n_particles, initial_sick_percent, initial_immobilized_percent)
-    simulate(times, initial_state, can_heal, restric_movement, infected_cant_move, show_current_status, show_interval)
-
-       
-def createInitialState(n_particles, initialSick, intialCantMove):
-    state = []
-    nSick = (n_particles*initialSick)/100
-    pDontMove = (intialCantMove)/100
-    for i in range(0, n_particles):
-        state.append(
-            Particle(np.random.randint(bottom_movement_limit,top_movement_limit),
-                     np.random.randint(bottom_movement_limit, top_movement_limit),
-                     i < nSick,
-                     np.random.uniform(0,1) > pDontMove))
-    return state
-
-def plotCurrentStatus(currentTime, currentState):
-    plt.cla()
-    plt.xlim(bottom_movement_limit, top_movement_limit)
-    plt.ylim(bottom_movement_limit, top_movement_limit)
-    plt.scatter(list(map(getXSick, currentState)), list(map(getYSick, currentState)), color='green', label='times:  %.1f' %(currentTime), marker='^')
-    plt.scatter(list(map(getXNotSick, currentState)), list(map(getYNotSick, currentState)), color='black', marker='D')
-    plt.legend(fancybox=True, framealpha=1, shadow=True, borderpad=1, loc='upper center')
-    plt.pause(0.00001)
-
-def plotFinalStatus(infected, not_infected, ntimes):
-    plt.close()
-    plt.xlim(-5, 4005)
-    plt.ylim(-5, 105)
-    plt.plot(ntimes, infected, color='green', label='Infectados')
-    plt.plot(ntimes, not_infected, color='blue', label='Sanos')
-    plt.legend(fancybox=True, framealpha=1, shadow=True, borderpad=1)
-    plt.show()
-
-def getXSick(p):
-    if(p.is_infected):
-        return p.x
-def getYSick(p):
-    if(p.is_infected):
-        return p.y
-def getXNotSick(p):
-    if(not p.is_infected):
-        return p.x
-def getYNotSick(p):
-    if(not p.is_infected):
-        return p.y
-
-
 def main():
-    n_particles, times, initial_sick_percent = 100, 4000, 5
-    show_current_status, show_interval = True, 10
+    n_particles = 100
+    times = 4000
+    initial_sick_percent = 5
+    contagionProbability = 0.9
+    heal_probability = 0.8
+    heal_steps = 20
+    top_movement_limit = 100
+    transmission_distance = 5
+    steps_until_not_move = 10
+
+    initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 0, False, False, False
+    model_A1_board = Board(
+        contagionProbability,
+        heal_probability,
+        heal_steps,
+        top_movement_limit,
+        transmission_distance,
+        steps_until_not_move,
+        n_particles, 
+        times, 
+        initial_sick_percent,
+        initial_immobilized_percent,
+        can_heal,
+        restric_movement,
+        infected_cant_move
+    )
+    initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 0, True, False, False
+    model_B1_board = Board(
+        contagionProbability,
+        heal_probability,
+        heal_steps,
+        top_movement_limit,
+        transmission_distance,
+        steps_until_not_move,
+        n_particles,
+        times,
+        initial_sick_percent,
+        initial_immobilized_percent,
+        can_heal,
+        restric_movement,
+        infected_cant_move
+    )
+
+    initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 0, False, True, True
+    model_A2_board = Board(
+        contagionProbability,
+        heal_probability,
+        heal_steps,
+        top_movement_limit,
+        transmission_distance,
+        steps_until_not_move,
+        n_particles,
+        times,
+        initial_sick_percent,
+        initial_immobilized_percent,
+        can_heal,
+        restric_movement,
+        infected_cant_move
+    )
+
+    initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 0, True, True, True
+    model_B2_board = Board(
+        contagionProbability,
+        heal_probability,
+        heal_steps,
+        top_movement_limit,
+        transmission_distance,
+        steps_until_not_move,
+        n_particles,
+        times,
+        initial_sick_percent,
+        initial_immobilized_percent,
+        can_heal,
+        restric_movement,
+        infected_cant_move
+    )
+    
+    initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 50, False, True, False
+    model_A3_board = Board(
+        contagionProbability,
+        heal_probability,
+        heal_steps,
+        top_movement_limit,
+        transmission_distance,
+        steps_until_not_move,
+        n_particles,
+        times,
+        initial_sick_percent,
+        initial_immobilized_percent,
+        can_heal,
+        restric_movement,
+        infected_cant_move
+    )
+
+    initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 0, True, True, False
+    model_B3_board = Board(
+        contagionProbability,
+        heal_probability,
+        heal_steps,
+        top_movement_limit,
+        transmission_distance,
+        steps_until_not_move,
+        n_particles,
+        times,
+        initial_sick_percent,
+        initial_immobilized_percent,
+        can_heal,
+        restric_movement,
+        infected_cant_move
+    )
+
 
 #    #Todos las particulas se mueven
 #        # Modelo A
-#    initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 0, False, False, False
-#    createModel(n_particles, times, initial_sick_percent, initial_immobilized_percent, can_heal, restric_movement, 
-#    show_current_status, show_interval, infected_cant_move)
+    model_A1_board.simulate(True, 20)
 #        # Modelo B
-#    initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 0 , True, False, False
-#    createModel(n_particles, times, initial_sick_percent, initial_immobilized_percent, can_heal, restric_movement, 
-#    show_current_status, show_interval, infected_cant_move)
-#
+#    model_B1_board.simulate(True, 10)
 #    #10 Instantes luego de que la particula se infecte, deja de moverse
 #        #Modelo A
-#    initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 0 , False, True, True
-#    createModel(n_particles, times, initial_sick_percent, initial_immobilized_percent, can_heal, restric_movement, 
-#    show_current_status, show_interval, infected_cant_move)
+#    model_A2_board.simulate(True, 10)
 #        #Modelo B
-#    initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 0 , True, True, True
-#    createModel(n_particles, times, initial_sick_percent, initial_immobilized_percent, can_heal, restric_movement, 
-#    show_current_status, show_interval, infected_cant_move)
-#
+#    model_B2_board.simulate(True, 10)
 #    #50 % de las particulas no se mueven
 #        #Modelo A
-#    initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 50, False, True, False
-#    createModel(n_particles, times, initial_sick_percent, initial_immobilized_percent, can_heal, restric_movement, 
-#    show_current_status, show_interval, infected_cant_move)
+#    model_A3_board.simulate(True, 10)
 #        #Modelo B
-#    initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 50, True, True, False
-#    createModel(n_particles, times, initial_sick_percent, initial_immobilized_percent, can_heal, restric_movement, 
-#    show_current_status, show_interval, infected_cant_move)
+#    model_B3_board.simulate(True, 10)
+
 
 
 
