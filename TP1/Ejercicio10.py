@@ -6,7 +6,7 @@ from enum import Enum
 class Board:
     def __init__(
         self,
-        contagionProbability,
+        contagion_probability,
         heal_probability,
         heal_steps,
         top_movement_limit,
@@ -21,7 +21,7 @@ class Board:
         infected_cant_move
     ):
         self.bottom_movement_limit = 0
-        self.contagionProbability = contagionProbability
+        self.contagion_probability = contagion_probability
         self.heal_probability = heal_probability
         self.heal_steps = heal_steps
         self.top_movement_limit = top_movement_limit
@@ -51,8 +51,6 @@ class Board:
         for current_particle in self.state:
             if (current_particle.is_infected and particle.is_near(current_particle)):
                 nearParticles += 1
-        if nearParticles > 0:
-            print(nearParticles)
         return nearParticles
     
     def get_state_information(self):
@@ -137,7 +135,7 @@ class Particle:
     def is_got_infected(self, n_near_infected):
         is_infected = False
         for i in range(1, n_near_infected):
-            if (self.board.contagionProbability <= np.random.uniform(0,1)):
+            if (self.board.contagion_probability >= np.random.uniform(0,1)):
                 is_infected = True
         return is_infected
 
@@ -156,7 +154,7 @@ def main():
     n_particles = 100
     times = 4000
     initial_sick_percent = 5
-    contagionProbability = 0.9
+    contagion_probability = 0.6
     heal_probability = 0.8
     heal_steps = 20
     top_movement_limit = 100
@@ -165,7 +163,7 @@ def main():
 
     initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 0, False, False, False
     model_A1_board = Board(
-        contagionProbability,
+        contagion_probability,
         heal_probability,
         heal_steps,
         top_movement_limit,
@@ -181,7 +179,7 @@ def main():
     )
     initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 0, True, False, False
     model_B1_board = Board(
-        contagionProbability,
+        contagion_probability,
         heal_probability,
         heal_steps,
         top_movement_limit,
@@ -195,10 +193,9 @@ def main():
         restric_movement,
         infected_cant_move
     )
-
     initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 0, False, True, True
     model_A2_board = Board(
-        contagionProbability,
+        contagion_probability,
         heal_probability,
         heal_steps,
         top_movement_limit,
@@ -212,10 +209,9 @@ def main():
         restric_movement,
         infected_cant_move
     )
-
     initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 0, True, True, True
     model_B2_board = Board(
-        contagionProbability,
+        contagion_probability,
         heal_probability,
         heal_steps,
         top_movement_limit,
@@ -229,10 +225,9 @@ def main():
         restric_movement,
         infected_cant_move
     )
-    
     initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 50, False, True, False
     model_A3_board = Board(
-        contagionProbability,
+        contagion_probability,
         heal_probability,
         heal_steps,
         top_movement_limit,
@@ -246,10 +241,9 @@ def main():
         restric_movement,
         infected_cant_move
     )
-
     initial_immobilized_percent, can_heal, restric_movement, infected_cant_move = 0, True, True, False
     model_B3_board = Board(
-        contagionProbability,
+        contagion_probability,
         heal_probability,
         heal_steps,
         top_movement_limit,
