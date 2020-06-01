@@ -30,13 +30,14 @@ class Board:
 
         self.particle_step = particle_step
 
+        self.green_particles, self.red_particles = [], []
         self.green_particles_count = green_particles_count
-        self.green_particles = []
-
-        self.red_particles = []
         self.red_particles_count = red_particles_count
 
         self.use_half_wall = use_half_wall
+
+        self.left_green_particles_count, self.right_green_particles_count = [], []
+        self.left_red_particles_count, self.right_red_particles_count = [], []
 
         self.initialize_particles()
 
@@ -63,6 +64,21 @@ class Board:
         self.initialize_green_particles()
         self.initialize_red_particles()
 
+    def register_particles_count(self):
+        self.left_green_particles_count.append(
+            sum(p.is_in_left_side() for p in self.green_particles)
+        )
+        self.right_green_particles_count.append(
+            sum(p.is_in_right_side() for p in self.green_particles)
+        )
+
+        self.left_red_particles_count.append(
+            sum(p.is_in_left_side() for p in self.red_particles)
+        )
+        self.right_red_particles_count.append(
+            sum(p.is_in_right_side() for p in self.red_particles)
+        )
+
     def start_movement(self):
         while self.time < self.moving_time:
             for p in self.green_particles:
@@ -70,6 +86,8 @@ class Board:
             for p in self.red_particles:
                 p.move()
             self.time += 1
+            self.register_particles_count()
+            # if self.time % 20 == 0:
             self.draw()
         plt.show()
 
@@ -92,6 +110,21 @@ class Board:
             return False
         return True
 
+    def draw_density(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+        ax.set_xlabel("Time")
+        ax.set_ylabel("Particles count (right, left)")
+        x = np.linspace(0, self.moving_time, self.moving_time)
+
+        ax.plot(x, self.right_red_particles_count, "-r")
+        ax.plot(x, self.left_red_particles_count, "-r")
+        plt.show()
+
+        ax.plot(x, self.right_green_particles_count, "-g")
+        ax.plot(x, self.left_green_particles_count, "-g")
+        plt.show()
+
     def draw(self):
         plt.cla()
         plt.xlim(0, self.size_x)
@@ -100,7 +133,7 @@ class Board:
             list(p.get_x() for p in self.green_particles),
             list(p.get_y() for p in self.green_particles),
             color="green",
-            label="times:  %.1f" % (self.time),
+            label="Time:  %.1f" % (self.time),
             marker=",",
             lw=0,
             s=3,
@@ -153,6 +186,14 @@ class Particle:
         if self.board.validate_boundaries(new_x, self.y):
             self.x = new_x
 
+    def is_in_left_side(self):
+        size_x, size_y = self.board.get_size()
+        return self.x < size_x / 2
+
+    def is_in_right_side(self):
+        size_x, size_y = self.board.get_size()
+        return self.x > size_x / 2
+
     def generate_directions(self):
         direction_actions = []
         direction_actions.append(self.move_to_north)
@@ -178,6 +219,7 @@ def main():
     particle_step = 0.1
     moving_time = 3000
 
+    # a) En t=0 la pared divisoria es retirada, permitiendo que los dos gases se mezclen
     board = Board(
         board_size_x,
         board_size_y,
@@ -188,6 +230,20 @@ def main():
         False,
     )
     board.start_movement()
+    board.draw_density()
+
+    # b) En t=0 es removida sólo la mitad inferior de la pared permitiendo que los dos gases se mezclen
+    board = Board(
+        board_size_x,
+        board_size_y,
+        green_particles_count,
+        red_particles_count,
+        moving_time,
+        particle_step,
+        True,
+    )
+    board.start_movement()
+    board.draw_density()
 
 
 if __name__ == "__main__":
