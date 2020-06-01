@@ -35,15 +35,15 @@ def RandomWalk(N):
 
         # Agrega coordenadas movimiento a la lista de posiciones
         position.append((x, y))
-        plt.plot(
-            *zip(*position), color="blue",
-        )
+        lp = plt.plot(*zip(*position), color="blue",)
         # plt.xlim(-board_size_x, board_size_x)
         # plt.ylim(-board_size_y, board_size_y)
-        plt.plot(x, y, "--bo", color="green")
+        point = plt.plot(x, y, "--bo", color="green")
         plt.xlabel("x")
         plt.ylabel("y")
         plt.pause(0.001)
+        for p in point:
+            p.remove()
 
     plt.show()
     return
