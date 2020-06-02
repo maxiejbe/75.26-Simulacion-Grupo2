@@ -38,12 +38,15 @@ def gapTest(numberOfGaps, alpha, beta):
 
 [pValor, gaps] = gapTest(100000, 0.2, 0.5)
 plt.hist(gaps, bins = 50, color = 'purple')
+plt.title('Histograma de la distribución de las longitudes de gaps para 100.000 gaps generados')
+plt.xlabel('Gaps')
+plt.ylabel('Cantidad de gaps')
 plt.show()
 nivelDeSignifiacion = 0.01
 if pValor < nivelDeSignifiacion:
-    print("Para un nivel de significación del ", nivelDeSignifiacion*100, "%, obtenemos que no podemos rechazar la hipótesis nula (h=0)")
-else:
     print("Para un nivel de significación del ", nivelDeSignifiacion*100, "%, obtenemos que podemos rechazar la hipótesis nula (h=0)")
+else:
+    print("Para un nivel de significación del ", nivelDeSignifiacion*100, "%, obtenemos que no podemos rechazar la hipótesis nula (h=0)")
 
 
 
