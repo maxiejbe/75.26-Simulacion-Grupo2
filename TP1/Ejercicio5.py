@@ -42,6 +42,8 @@ plt.title('Histograma de la distribución de las longitudes de gaps para 100.000
 plt.xlabel('Gaps')
 plt.ylabel('Cantidad de gaps')
 plt.show()
+maxgap = max(gaps)
+print("El gap mas largo fue: ", maxgap)
 nivelDeSignifiacion = 0.01
 if pValor < nivelDeSignifiacion:
     print("Para un nivel de significación del ", nivelDeSignifiacion*100, "%, obtenemos que podemos rechazar la hipótesis nula (h=0)")
