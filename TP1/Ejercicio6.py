@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import math
 from Ejercicio2 import generate_rn
 from scipy.stats import chi2
+from scipy import stats
 
 
 def group_results(numbers):
@@ -20,30 +21,32 @@ def group_results(numbers):
             np.put(grouped, 4,np.take(grouped, [4])+1)
     return grouped
 
-def chi_squared_test(mu, sigma, n, observed_values) :
+def chi_squared_test(n, mu, sigma):
+    observed_values = generate_rn(n)
     observed_grouped = group_results(observed_values)
-    theoretical = np.random.normal(mu, sigma, n)
-    theoretical_grouped = group_results(theoretical)
-
+    theoretical_grouped = [stats.norm.cdf(2, mu, sigma), 
+                           stats.norm.cdf(4, mu, sigma) - stats.norm.cdf(2, mu, sigma),
+                           stats.norm.cdf(6, mu, sigma) - stats.norm.cdf(4, mu, sigma),
+                           stats.norm.cdf(8, mu, sigma) - stats.norm.cdf(6, mu, sigma),
+                           1 - stats.norm.cdf(8, mu, sigma)]
     i,D2 = 0, 0
     while (i < len(observed_grouped)):
-        D2 += (((observed_grouped[i] - theoretical_grouped[i])**2)/theoretical_grouped[i])
+        D2 += (observed_grouped[i] - (theoretical_grouped[i]*n))**2
+        D2 = D2/theoretical_grouped[i]*n
         i += 1
     top_limit = chi2.ppf(0.99, df=4)
-    return D2 <= top_limit
 
-def multiplechi_squared_test(n, tests_n):
-    observed_values = generate_rn(n)
-    mu, sigma = 5, 2.41523
-    resutls = [chi_squared_test(mu, sigma,n, observed_values) for _ in range(tests_n)]
-    return resutls
+    print('D2: ', D2)
+    print('Top limit: ', top_limit)
+    if D2 <= top_limit:
+        print('H0 es aceptada')
+    else:
+        print('H1 es rechazada')
 
 
 def main():
-    n, tests_n = 10000, 100
-    results =  multiplechi_squared_test(n, tests_n)
-    print("El test ACEPTA la hipotesis nula {} veces.".format(len([result for result in results if result])))
-    print("El test RECHAZA la hipótesis nula {} veces".format(len([result for result in results if not result])))
+    mu, sigma, n = 5, 2, 10000
+    chi_squared_test(n, mu, sigma)
     
 
 if __name__ == "__main__":
