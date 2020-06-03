@@ -2,6 +2,23 @@
 from Ejercicio4 import generate_standard_normal_acceptance_rejection
 import numpy as np
 import scipy.stats as stats
+import math
+
+
+def empiric_normal_distribution(numbers, x):
+    return np.count_nonzero(numbers <= x) / len(numbers)
+
+
+def test_kolmogorov_smirnov(numbers, alpha):
+    xl = np.linspace(0, 1, len(numbers))
+    max_difference, q = 0, 0
+    for x in xl:
+        difference = abs(empiric_normal_distribution(numbers, x) - stats.norm.cdf(x))
+        if difference > max_difference:
+            max_difference = difference
+            q = x
+    # alpha = P[q > c | H0] = 1-e **(-2nc**2)
+    return q > math.sqrt(-1 / len(numbers) * math.log10(alpha / 2))
 
 
 def test_standard_normal_kolmogorov_smirnov(tests_n, numbers_per_test, alpha, output):
@@ -10,11 +27,15 @@ def test_standard_normal_kolmogorov_smirnov(tests_n, numbers_per_test, alpha, ou
     for i in range(tests_n):
         numbers = generate_standard_normal_acceptance_rejection(numbers_per_test, False)
 
+        ks_test_result = test_kolmogorov_smirnov(numbers, alpha)
+
+        # Existing python ks test
         d, pval = stats.kstest(numbers, "norm")
         if output:
             print("P(KS dataset {}): {}".format(i, pval))
 
-        if pval < alpha:
+        # if pval < alpha:
+        if not ks_test_result:
             rejected_tests_n += 1
 
     rejection_p = float(rejected_tests_n) / tests_n

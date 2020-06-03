@@ -12,7 +12,7 @@ def generate_normal_acceptance_rejection(n, mu, sigma, output):
 
 
 def generate_standard_normal_acceptance_rejection(n, output):
-    # Theory: Derive Fx(t)/Fy(t) => t=1
+    # Theory: Derive fx(t)/fy(t) => t=1
     c = 2 * stats.norm.pdf(1) / stats.expon.pdf(1)
 
     numbers = np.array([])
