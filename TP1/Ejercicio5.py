@@ -45,7 +45,7 @@ plt.show()
 maxgap = max(gaps)
 print("El gap de tamaño máximo fue: ", maxgap)
 alpha = 0.01
-if pValor < alpha:
+if pValor < (1-alpha):
     print(
         "Para un nivel de significación del ",
         alpha * 100,
