@@ -17,7 +17,7 @@ def gap_test(number_of_gaps, alpha, beta):
         if (number > alpha) and (number <= beta):
             current_gap += 1
         else:
-            gaps[current_gap] = gaps[current_gap] + 1
+            gaps[current_gap] += 1
         number_gcl = gcl(1, x0=number)
         number = gcl01(1, x0=number_gcl)
 
