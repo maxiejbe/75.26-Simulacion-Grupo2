@@ -3,7 +3,7 @@ import random
 from matplotlib import pyplot as plt
 
 # Cantidad de pasos
-N_steps = 1000
+n_steps = 1000
 
 # Probabilidad: equiprobable para moverse en cualquiera de las 4 direcciones
 # (arriba, abajo, derecha o izquierda)
@@ -13,7 +13,7 @@ prob = 0.25
 # board_size_y = 50
 
 
-def RandomWalk(N):
+def random_walk(N):
 
     position = []
     x = 0
@@ -35,7 +35,9 @@ def RandomWalk(N):
 
         # Agrega coordenadas movimiento a la lista de posiciones
         position.append((x, y))
-        lp = plt.plot(*zip(*position), color="blue",)
+        plt.plot(
+            *zip(*position), color="blue",
+        )
         # plt.xlim(-board_size_x, board_size_x)
         # plt.ylim(-board_size_y, board_size_y)
         point = plt.plot(x, y, "--bo", color="green")
@@ -49,4 +51,4 @@ def RandomWalk(N):
     return
 
 
-RandomWalk(N_steps)
+random_walk(n_steps)
