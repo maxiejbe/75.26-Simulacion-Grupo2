@@ -17,8 +17,6 @@ def test_kolmogorov_smirnov(numbers, alpha):
         if difference > max_difference:
             max_difference = difference
             q = x
-    print(q)
-    print(max_difference)
     # alpha = P[q > c | H0] = 1-e **(-2nc**2)
     return q > math.sqrt(-1 / len(numbers) * math.log10(alpha / 2))
 
