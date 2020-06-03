@@ -39,9 +39,8 @@ def chi_squared_test(n, mu, sigma, alpha):
             / (theoretical_p[i] * n)
         )
         i += 1
-    top_limit = chi2.ppf(1 - alpha, df=k_classes)
-    scaled_d2 = D2 / n * k_classes
-
+    # top_limit = chi2.ppf(1 - alpha, df=k_classes)
+    # scaled_d2 = D2 / n * k_classes
     # or scaled_d2 <= top_limit
     if pValor < (1 - alpha):
         print("H0 es rechazada")
