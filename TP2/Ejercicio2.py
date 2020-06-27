@@ -1,64 +1,85 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+import enum
+
+
+class RequestStatus(enum.Enum):
+    New = 1
+    Processing = 2
+    Finalized = 3
 
 
 class Request:
     def __init__(self):
-        self.request_status = 'New'
+        self.request_status = RequestStatus.New
 
-    def startProcessing(self):
-        self.request_status = 'Processing'
+    def start_processing(self):
+        self.request_status = RequestStatus.Processing
 
-    def endProcessing(self):
-        self.request_status = 'Finalized'
+    def end_processing(self):
+        self.request_status = RequestStatus.Finalized
 
 
 class Server:
     def __init__(self):
         self.state = []
 
-    def resolveRequest(self):
+    def resolve_request(self):
         next_start_procesing = False
         for request in reversed(self.state):
             if(next_start_procesing):
-                request.startProcessing()
+                request.start_processing()
                 break
-            if(request.request_status == 'Processing'):
-                request.endProcessing()
+            if(request.request_status == RequestStatus.Processing):
+                request.end_processing()
                 next_start_procesing = True
 
     def addNewRequest(self):
         request = Request()
-        if (len([request for request in self.state if request.request_status == 'Processing']) == 0):
-            request.startProcessing()
+        if (len([request for request in self.state if request.request_status == RequestStatus.Processing]) == 0):
+            request.start_processing()
         self.state.insert(0, request)
 
-    def printState(self):
-        news = len(
-            [request for request in self.state if request.request_status == 'New'])
-        processing = len(
-            [request for request in self.state if request.request_status == 'Processing'])
-        finalized = len(
-            [request for request in self.state if request.request_status == 'Finalized'])
+    def getNewRequest(self):
+        return [request for request in self.state if request.request_status == RequestStatus.New]
 
-        print('New ', str(news), ' | Processing ', str(
-            processing), ' | Finalized ',  str(finalized))
+    def get_processing_request(self):
+        return [request for request in self.state if request.request_status == RequestStatus.Processing]
+
+    def getFinalizedRequest(self):
+        return [request for request in self.state if request.request_status == RequestStatus.Finalized]
+
+    def printState(self):
+        print('New ', str(self.getNewRequest()), ' | Processing ', str(
+            self.get_processing_request()), ' | Finalized ',  str(self.getFinalizedRequest()))
+
+
+def plot_number_request(n, number_of_request):
+    plt.close()
+    x_axis = list(range(0, n))
+    plt.plot(x_axis, number_of_request, color='blue', label='Requests')
+    plt.legend(fancybox=True, framealpha=1, shadow=True, borderpad=1)
+    plt.show()
 
 
 def run_simulation(seconds, p_new_request, p_resolve_request):
     server = Server()
+    number_of_request = []
     n = seconds*1000/100
     i = 0
     while i < n:
         is_new_request = np.random.uniform(0, 1) < p_new_request
         is_resolve_request = np.random.uniform(0, 1) < p_resolve_request
         if (is_resolve_request):
-            server.resolveRequest()
+            server.resolve_request()
         if (is_new_request):
             server.addNewRequest()
         i += 1
-        server.printState()
+        number_of_request.append(
+            str(len(server.getNewRequest()) + len(server.get_processing_request())))
+
+    plot_number_request(int(n), number_of_request)
 
 
 def main():
