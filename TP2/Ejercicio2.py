@@ -73,20 +73,25 @@ class Server:
     def plot_number_request(self):
         plt.close()
         x_axis = list(range(0, self.iterations))
-        plt.plot(x_axis, self.number_of_request_each_time, color='blue')
+        plt.plot(x_axis, self.number_of_request_each_time,
+                 color='blue', label='Cantidad de solicitudes')
         plt.legend(fancybox=True, framealpha=1, shadow=True, borderpad=1)
+        plt.xlabel('Instantes')
+        plt.ylabel('Estados')
         plt.show()
 
     def plot_number_request_grouped(self):
         plt.close()
-        plt.hist(self.number_of_request_each_time, bins=16)
+        plt.hist(self.number_of_request_each_time, bins=10)
+        plt.xlabel('Estados')
+        plt.ylabel('Cantidad de solicitudes')
         plt.show()
 
     def print_occurrency_percentage(self):
         grouped = Counter(self.number_of_request_each_time).items()
         for obj in grouped:
             print('Estado ', obj[0], ' = ',
-                  obj[1] / len(self.number_of_request_each_time), '%')
+                  (obj[1] / len(self.number_of_request_each_time)) * 100, '%')
 
 
 def main():
