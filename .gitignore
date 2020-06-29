@@ -1,3 +1,5 @@
 Guia/
 settings.json
 *.pyc
+.DS_Store
+Parcial.py
