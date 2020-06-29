@@ -5,27 +5,10 @@ from random import randint
 import numpy as np
 import matplotlib.pyplot as plt
 
-accionA = pd.read_csv("accion A.csv")
-accionB = pd.read_csv("accion B.csv")
-
-lista_valores_A = accionA["Valor"].to_list()
-lista_valores_B = accionB["Valor"].to_list()
-
 
 class Direction(Enum):
     Sube = 0
     Baja = 1
-
-
-cantidades = {}
-cantidades[Direction.Sube, Direction.Sube] = 0
-cantidades[Direction.Sube, Direction.Baja] = 0
-cantidades[Direction.Baja, Direction.Sube] = 0
-cantidades[Direction.Baja, Direction.Baja] = 0
-
-cantidades_totales = {}
-cantidades_totales[Direction.Sube] = 0
-cantidades_totales[Direction.Baja] = 0
 
 
 def obtener_direccion(lista, idx1, idx2):
@@ -35,6 +18,16 @@ def obtener_direccion(lista, idx1, idx2):
 
 
 def encontrar_cantidades(lista):
+    cantidades = {}
+    cantidades[Direction.Sube, Direction.Sube] = 0
+    cantidades[Direction.Sube, Direction.Baja] = 0
+    cantidades[Direction.Baja, Direction.Sube] = 0
+    cantidades[Direction.Baja, Direction.Baja] = 0
+
+    cantidades_totales = {}
+    cantidades_totales[Direction.Sube] = 0
+    cantidades_totales[Direction.Baja] = 0
+
     for i in range(len(lista) - 2):
         comp1 = obtener_direccion(lista, i, i + 1)
         comp2 = obtener_direccion(lista, i + 1, i + 2)
@@ -64,49 +57,78 @@ def encontrar_probabilidades(lista):
     return probabilidades
 
 
-prob_A = encontrar_probabilidades(lista_valores_A)
-prob_B = encontrar_probabilidades(lista_valores_B)
-
-print(prob_A)
-print(prob_B)
-
-#simulacion accion
+# simulacion accion
 def simulacion(diccionario):
-  numeros_aleatorios = []
-  for i in range(365):
-    numeros_aleatorios.append(randint(0,1))
+    numeros_aleatorios = []
+    for i in range(365):
+        numeros_aleatorios.append(randint(0, 1))
 
-  valores_accion = [40]
-  estado_anterior = True #True si aumenta, False si baja, asumimos que empieza en un aumento como valor "semilla"
-  for i in range(1, 365):
-    nro = numeros_aleatorios[i]
-    matriz = matrix([[diccionario[Direction.Sube, Direction.Sube], diccionario[Direction.Sube, Direction.Baja]], [diccionario[Direction.Baja, Direction.Sube], diccionario[Direction.Baja, Direction.Baja]]])
-    expm(matriz**i)
+    valores_accion = [40]
+    estado_anterior = True  # True si aumenta, False si baja, asumimos que empieza en un aumento como valor "semilla"
+    for i in range(1, 365):
+        nro = numeros_aleatorios[i]
+        matriz = matrix(
+            [
+                [
+                    diccionario[Direction.Sube, Direction.Sube],
+                    diccionario[Direction.Sube, Direction.Baja],
+                ],
+                [
+                    diccionario[Direction.Baja, Direction.Sube],
+                    diccionario[Direction.Baja, Direction.Baja],
+                ],
+            ]
+        )
+        expm(matriz ** i)
 
-    if estado_anterior:
-      if nro <= matriz[0,0]:
-        valores_accion.append(randint(valores_accion[i-1], valores_accion[i-1]+5))
-      else:
-        valores_accion.append(randint(valores_accion[i-1]-5,valores_accion[i-1]))
-    if not estado_anterior:
-      if nro <= matriz[1,0]:
-        valores_accion.append(randint(valores_accion[i-1], valores_accion[i-1]+5))
-      else:
-        valores_accion.append(randint(valores_accion[i-1]-5,valores_accion[i-1]))
-  return valores_accion
+        if estado_anterior:
+            if nro <= matriz[0, 0]:
+                valores_accion.append(
+                    randint(valores_accion[i - 1], valores_accion[i - 1] + 5)
+                )
+            else:
+                valores_accion.append(
+                    randint(valores_accion[i - 1] - 5, valores_accion[i - 1])
+                )
+        if not estado_anterior:
+            if nro <= matriz[1, 0]:
+                valores_accion.append(
+                    randint(valores_accion[i - 1], valores_accion[i - 1] + 5)
+                )
+            else:
+                valores_accion.append(
+                    randint(valores_accion[i - 1] - 5, valores_accion[i - 1])
+                )
+    return valores_accion
 
-valores_accion_A = simulacion(prob_A)
-valores_accion_B = simulacion(prob_B)
 
-x = np.arange(0, 365)
+def main():
+    accionA = pd.read_csv("accion A.csv")
+    accionB = pd.read_csv("accion B.csv")
 
-plt.plot(x, valores_accion_A)
-plt.xlabel('Dias')
-plt.ylabel('Valor acción')
-plt.title('Evolución anual acción A')
-plt.show()
+    lista_valores_A = accionA["Valor"].to_list()
+    lista_valores_B = accionB["Valor"].to_list()
 
-plt.plot(x, valores_accion_B)
-plt.xlabel('Dias')
-plt.ylabel('Valor acción')
-plt.title('Evolución anual acción B')
+    prob_A = encontrar_probabilidades(lista_valores_A)
+    prob_B = encontrar_probabilidades(lista_valores_B)
+
+    valores_accion_A = simulacion(prob_A)
+    valores_accion_B = simulacion(prob_B)
+
+    x = np.arange(0, 365)
+
+    plt.plot(x, valores_accion_A)
+    plt.xlabel("Dias")
+    plt.ylabel("Valor acción")
+    plt.title("Evolución anual acción A")
+    plt.show()
+
+    plt.plot(x, valores_accion_B)
+    plt.xlabel("Dias")
+    plt.ylabel("Valor acción")
+    plt.title("Evolución anual acción B")
+    plt.show()
+
+
+if __name__ == "__main__":
+    main()
