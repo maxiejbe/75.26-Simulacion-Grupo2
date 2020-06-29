@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import enum
+from collections import Counter
 
 
 class RequestStatus(enum.Enum):
@@ -27,7 +28,7 @@ class Server:
         self.iterations = int(seconds * 1000/100)
         self.p_new_request = p_new_request
         self.p_resolve_request = p_resolve_request
-        self.number_of_request = []
+        self.number_of_request_each_time = []
 
     def resolve_request(self):
         if(np.random.uniform(0, 1) < self.p_resolve_request):
@@ -65,16 +66,27 @@ class Server:
         while i < self.iterations:
             self.resolve_request()
             self.addNewRequest()
-            self.number_of_request.append(
+            self.number_of_request_each_time.append(
                 str(len(self.get_new_request()) + len(self.get_processing_request())))
             i += 1
 
     def plot_number_request(self):
         plt.close()
         x_axis = list(range(0, self.iterations))
-        plt.plot(x_axis, self.number_of_request, color='blue')
+        plt.plot(x_axis, self.number_of_request_each_time, color='blue')
         plt.legend(fancybox=True, framealpha=1, shadow=True, borderpad=1)
         plt.show()
+
+    def plot_number_request_grouped(self):
+        plt.close()
+        plt.hist(self.number_of_request_each_time, bins=16)
+        plt.show()
+
+    def print_occurrency_percentage(self):
+        grouped = Counter(self.number_of_request_each_time).items()
+        for obj in grouped:
+            print('Estado ', obj[0], ' = ',
+                  obj[1] / len(self.number_of_request_each_time), '%')
 
 
 def main():
@@ -83,7 +95,9 @@ def main():
     p_resolve_request = 1/30
     server = Server(seconds, p_new_request, p_resolve_request)
     server.run_server()
+    server.print_occurrency_percentage()
     server.plot_number_request()
+    server.plot_number_request_grouped()
 
 
 if __name__ == "__main__":
