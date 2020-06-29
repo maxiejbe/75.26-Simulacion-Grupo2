@@ -19,19 +19,19 @@ def draw(S, I, R, N, t, health_system_capacity):
     # Plot the data on three separate curves for S(t), I(t) and R(t)
     fig = plt.figure(facecolor="w")
     ax = fig.add_subplot(111, facecolor="#dddddd", axisbelow=True)
-    ax.plot(t, S / N * 100, "b", alpha=0.5, lw=2, label="Susceptible")
-    ax.plot(t, I / N * 100, "r", alpha=0.5, lw=2, label="Infected")
-    ax.plot(t, R / N * 100, "g", alpha=0.5, lw=2, label="Recovered with immunity")
+    ax.plot(t, S / N * 100, "b", alpha=0.5, lw=2, label="Susceptibles")
+    ax.plot(t, I / N * 100, "r", alpha=0.5, lw=2, label="Infectados")
+    ax.plot(t, R / N * 100, "g", alpha=0.5, lw=2, label="Recuperados con inmunidad")
     ax.plot(
         t,
         health_system_capacity,
         "black",
         alpha=0.5,
         lw=2,
-        label="Health system capacity",
+        label="Capacidad sistema sanitario",
     )
-    ax.set_xlabel("Time /days")
-    ax.set_ylabel("Population percentage")
+    ax.set_xlabel("Días transcurridos")
+    ax.set_ylabel("Porcentaje de población")
     ax.set_ylim(0, 120)
     ax.yaxis.set_tick_params(length=0)
     ax.xaxis.set_tick_params(length=0)
