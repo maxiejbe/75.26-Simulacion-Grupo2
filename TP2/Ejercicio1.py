@@ -85,11 +85,11 @@ def main():
 
     print("Proveedor 1:")
     print("El tiempo medio de espera es de: {:.3f} horas".format(tiemposEsperaP1.mean()))
-    print("La fraccion de las solicitudes que no esperaron es: {:.3f}%\n".format((n - np.count_nonzero(tiemposEsperaP1))/n))
+    print("La fraccion de las solicitudes que no esperaron es: {:.3f}\n".format((n - np.count_nonzero(tiemposEsperaP1))/n))
 
     print("Proveedor 2:")
     print("El tiempo medio de espera es de: {:.3f} horas".format(tiemposEsperaP2.mean()))
-    print("La fraccion de las solicitudes que no esperaron es: {:.3f}% \n".format((n - np.count_nonzero(tiemposEsperaP2))/n))
+    print("La fraccion de las solicitudes que no esperaron es: {:.3f}\n".format((n - np.count_nonzero(tiemposEsperaP2))/n))
 
     print("El proveedor 1 es {:.3f}% veces mas rapido que el 2".format(diferencia))
     if diferencia >= 50:
