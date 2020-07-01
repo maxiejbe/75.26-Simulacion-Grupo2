@@ -1,72 +1,142 @@
 import numpy as np
 import matplotlib.pyplot as mp
+from enum import Enum
 
-#Variables
-n = 100000
-mediaMuestras = 4 
-p = 0.6
-media1 = .7
-media2 = 1
-mediaP2 = .8
 
-#Hora de llegada de las muestras
-z = np.random.exponential(1/mediaMuestras, n)
-tiemposMuestras = np.concatenate(([0], np.cumsum(z)), axis=None)
+# Hora de llegada de las muestras
+def generar_tiempos_muestras(n, mu_muestras):
+    z = np.random.exponential(mu_muestras, n)
+    tiempos_muestras = np.concatenate(([0], np.cumsum(z)), axis=None)
+    return tiempos_muestras
 
-#Tiempos del proveedor 1
-tiemposP1 = np.zeros(n)
-u = np.random.rand(n)
-for i in range (n):
-    if (u[i] < p): 
-        z = np.random.exponential(1/media1)
-    else: 
-        z = np.random.exponential(1/media2)
-    tiemposP1[i] = z
-    
-#Tiempos del proveedor 2
-tiemposP2 = np.random.exponential(1/mediaP2, n)
 
-#Funcion para calcular demora
-def calcularDemora(tiemposMuestras, tiemposProveedor, n):
-    tiemposEsperaProveedor = np.zeros(n)
-    tiempoDeEsperaAnterior = 0
+class Maquinas(Enum):
+    primera = 0
+    segunda = 1
+
+
+def dividir_muestras_por_maquina(tiempos_muestras, p):
+    tiempos_muestras_por_maquina = {}
+    tiempos_muestras_por_maquina[Maquinas.primera] = []
+    tiempos_muestras_por_maquina[Maquinas.segunda] = []
+
+    for muestra in tiempos_muestras:
+        u = np.random.rand()
+        if u < p:
+            maquina = Maquinas.primera
+        else:
+            maquina = Maquinas.segunda
+
+        tiempos_muestras_por_maquina[maquina].append(muestra)
+
+    return tiempos_muestras_por_maquina
+
+
+# Tiempos del proveedor 1
+def calcular_tiempos_espera_p1(tiempos_muestras, mu1, mu2, p, n):
+    muestras_por_maquina = dividir_muestras_por_maquina(tiempos_muestras, p)
+    tiempos_muestras_m1 = muestras_por_maquina[Maquinas.primera]
+    tiempos_muestras_m2 = muestras_por_maquina[Maquinas.segunda]
+
+    tiempos_espera_m1 = np.random.exponential(mu1, len(tiempos_muestras_m1))
+    tiempos_proveedor_m1 = calcular_tiempos_espera(
+        tiempos_muestras_m1, tiempos_espera_m1, mu1, len(tiempos_muestras_m1),
+    )
+    tiempos_espera_m2 = np.random.exponential(mu2, len(tiempos_muestras_m2))
+    tiempos_proveedor_m2 = calcular_tiempos_espera(
+        tiempos_muestras_m1, tiempos_espera_m2, mu2, len(tiempos_muestras_m2),
+    )
+
+    tiempos_espera = np.concatenate((tiempos_espera_m1, tiempos_proveedor_m2))
+    tiempos_proveedor = np.concatenate((tiempos_proveedor_m1, tiempos_proveedor_m2))
+    return tiempos_espera, tiempos_proveedor
+
+
+def calcular_tiempos_espera_p2(tiempos_muestras, mu, n):
+    tiempos_espera = np.random.exponential(mu, n)
+    tiempos_proveedor = calcular_tiempos_espera(tiempos_muestras, tiempos_espera, mu, n)
+    return tiempos_espera, tiempos_proveedor
+
+
+# Funcion para calcular tiempos de espera
+def calcular_tiempos_espera(tiempos_muestras, tiempos_proveedor, mu, n):
+    tiempos_espera_proveedor = np.zeros(n)
     j = 1
+
     while j < n:
-        deltaT = tiemposMuestras[j] + tiempoDeEsperaAnterior - tiemposMuestras[j-1]
-        tiempoDeEspera =  tiemposProveedor[j-1] - deltaT
-        if tiempoDeEspera <= 0:
-            tiempoDeEspera = 0
-        tiemposEsperaProveedor[j] = tiempoDeEspera
-        tiempoDeEsperaAnterior = tiempoDeEspera
+        termina_de_atender = (
+            tiempos_muestras[j - 1]
+            + tiempos_proveedor[j - 1]
+            + tiempos_espera_proveedor[j - 1]
+        )
+        delta_tiempo = termina_de_atender - tiempos_muestras[j]
+
+        if delta_tiempo >= 0:
+            tiempos_espera_proveedor[j - 1] = delta_tiempo
+
         j += 1
-    return tiemposEsperaProveedor
+    return tiempos_espera_proveedor
 
-#Demoras proveedor 1
-tiemposEsperaP1 = calcularDemora(tiemposMuestras, tiemposP1, n)
 
-#Demoras proveedor 2
-tiemposEsperaP2 = calcularDemora(tiemposMuestras, tiemposP2, n)
+def main():
+    # Variables
+    n = 100000
+    mu_muestras = 4
+    p = 0.6
+    mu_p1_1 = 0.7
+    mu_p1_2 = 1
+    mu_p2 = 0.8
 
-#Calculo para cada proveedor los tiempos totales de cada diagnostico
+    # Genero hora de llegada de muestras
+    tiempos_muestras = generar_tiempos_muestras(n, mu_muestras)
 
-tiempoTotalP1 = (tiemposEsperaP1 + tiemposP1).mean()
-tiempoTotalP2 = (tiemposEsperaP2 + tiemposP2).mean()
+    # Demoras proveedor 1
+    tiempos_espera_p1, tiempos_proveedor_p1 = calcular_tiempos_espera_p1(
+        tiempos_muestras, mu_p1_1, mu_p1_2, p, n
+    )
 
-diferencia = (tiempoTotalP2 - tiempoTotalP1)*100 / tiempoTotalP1
+    # Demoras proveedor 2
+    tiempos_espera_p2, tiempos_proveedor_p2 = calcular_tiempos_espera_p2(
+        tiempos_muestras, mu_p2, n
+    )
 
-print("N = ", n, "\n")
+    # Calculo para cada proveedor los tiempos totales de cada diagnostico
+    tiempo_total_p1 = (tiempos_proveedor_p1 + tiempos_espera_p1).mean()
+    tiempo_total_p2 = (tiempos_proveedor_p2 + tiempos_espera_p2).mean()
 
-print("Proveedor 1:")
-print("El tiempo medio de espera es de: {:.3f} horas".format(tiemposEsperaP1.mean()))
-print("La fraccion de las solicitudes que no esperaron es: {:.3f}\n".format((n - np.count_nonzero(tiemposEsperaP1))/n))
+    diferencia = (tiempo_total_p2 - tiempo_total_p1) * 100 / tiempo_total_p1
 
-print("Proveedor 2:")
-print("El tiempo medio de espera es de: {:.3f} horas".format(tiemposEsperaP2.mean()))
-print("La fraccion de las solicitudes que no esperaron es: {:.3f} \n".format((n - np.count_nonzero(tiemposEsperaP2))/n))
-print("El proveedor 1 es {:.3f}% veces mas rapido que el 2".format(diferencia))
-if diferencia >= 50:
-    print("El instituto puede aceptar hacer la inversion")
-else:
-    print("El instituto no puede aceptar hacer la inversion")
-    
+    print("N = ", n, "\n")
 
+    print("Proveedor 1:")
+    print(
+        "El tiempo medio de espera es de: {:.3f} horas".format(
+            tiempos_proveedor_p1.mean()
+        )
+    )
+    print(
+        "La fraccion de las solicitudes que no esperaron es: {:.3f}%\n".format(
+            (n - np.count_nonzero(tiempos_proveedor_p1)) / n * 100
+        )
+    )
+
+    print("Proveedor 2:")
+    print(
+        "El tiempo medio de espera es de: {:.3f} horas".format(
+            tiempos_proveedor_p2.mean()
+        )
+    )
+    print(
+        "La fraccion de las solicitudes que no esperaron es: {:.3f}% \n".format(
+            (n - np.count_nonzero(tiempos_proveedor_p2)) / n * 100
+        )
+    )
+    print("El proveedor 1 es {:.3f}% veces mas rapido que el 2".format(diferencia))
+    if diferencia >= 50:
+        print("El instituto puede aceptar hacer la inversion")
+    else:
+        print("El instituto no puede aceptar hacer la inversion")
+
+
+if __name__ == "__main__":
+    main()
