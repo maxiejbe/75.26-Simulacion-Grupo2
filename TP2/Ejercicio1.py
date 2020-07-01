@@ -10,7 +10,7 @@ media2 = 1
 mediaP2 = .8
 
 #Hora de llegada de las muestras
-z = np.random.exponential(1/mediaMuestras, n)
+z = np.random.exponential(mediaMuestras, n)
 tiemposMuestras = np.concatenate(([0], np.cumsum(z)), axis=None)
 
 #Tiempos del proveedor 1
@@ -18,13 +18,13 @@ tiemposP1 = np.zeros(n)
 u = np.random.rand(n)
 for i in range (n):
     if (u[i] < p): 
-        z = np.random.exponential(1/media1)
+        z = np.random.exponential(media1)
     else: 
-        z = np.random.exponential(1/media2)
+        z = np.random.exponential(media2)
     tiemposP1[i] = z
     
 #Tiempos del proveedor 2
-tiemposP2 = np.random.exponential(1/mediaP2, n)
+tiemposP2 = np.random.exponential(mediaP2, n)
 
 #Funcion para calcular demora
 def calcularDemora(tiemposMuestras, tiemposProveedor, n):
